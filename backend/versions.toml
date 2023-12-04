@@ -1,0 +1,14 @@
+[versions]
+
+ktor = "2.3.6"
+
+[bundles]
+
+ktorServer = ["ktorServer", "ktorServerCio"]
+
+[libraries]
+
+ktorServer = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktorServerCio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+
+

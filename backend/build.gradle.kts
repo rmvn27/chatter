@@ -3,21 +3,12 @@ plugins {
     application
 }
 
-group = "org.example"
+group = "chatter"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
+application { mainClass.set("chatter.MainKt") }
+kotlin { jvmToolchain(17) }
 
 dependencies {
-    testImplementation(kotlin("test"))
-}
-
-kotlin {
-    jvmToolchain(21)
-}
-
-application {
-    mainClass.set("MainKt")
+    implementation(libs.bundles.ktorServer)
 }
