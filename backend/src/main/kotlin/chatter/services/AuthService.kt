@@ -7,13 +7,15 @@ import arrow.core.right
 import chatter.UserEntity
 import chatter.UserRefreshTokenEntity
 import chatter.db.UserRefreshTokenQueries
+import chatter.db.asOptional
 import chatter.db.withDb
 import chatter.errors.ApplicationError
 import chatter.errors.BadAuthError
+import chatter.errors.BadRefreshToken
 import chatter.models.UserAuthTokens
+import chatter.models.UserPrincipal
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import kotlinx.serialization.Serializable
 import java.util.Date
@@ -38,17 +40,34 @@ class AuthService @Inject constructor(
         return createTokens(user).right()
     }
 
+    suspend fun regenerateTokens(refreshToken: UUID): Either<ApplicationError, UserAuthTokens> {
+        // check the validity if the refreshToken and look up the userId
+        val refreshTokenEntity = queries.findByRefreshToken(refreshToken)
+            .asOptional()
+            ?: return BadRefreshToken.left()
+        val jwtToken = createJwtToken(refreshTokenEntity.userId)
+
+        return UserAuthTokens(
+            refreshToken = refreshToken.toString(),
+            authToken = jwtToken
+        ).right()
+    }
+
+    suspend fun logout(refreshToken: UUID) = withDb {
+        queries.deleteByRefreshToken(refreshToken)
+    }
+
     // create the auth functionality that can be directly installed into ktor
-    context(AuthenticationConfig)
+    context(JWTAuthenticationProvider.Config)
     fun createJwtAuthentication() {
-        jwt {
-            realm = config.realm
-            verifier(
-                issuer = config.issuer,
-                audience = config.audience,
-                algorithm = Algorithm.HMAC256(config.jwtSecret)
-            )
-        }
+        realm = config.realm
+        verifier(
+            issuer = config.issuer,
+            audience = config.audience,
+            algorithm = Algorithm.HMAC256(config.jwtSecret)
+        )
+
+        validate { UserPrincipal(it.payload.subject) }
     }
 
     private suspend fun createTokens(user: UserEntity): UserAuthTokens {
@@ -59,19 +78,21 @@ class AuthService @Inject constructor(
 
         withDb { queries.insert(tokenEntity) }
 
-        val jwt = JWT.create()
-            .withIssuer(config.issuer)
-            .withAudience(config.audience)
-            .withSubject(user.id.toString())
-            // expire in 15 minutes
-            .withExpiresAt(Date(System.currentTimeMillis() + (15 * 60 * 1000)))
-            .sign(Algorithm.HMAC256(config.jwtSecret))
+
 
         return UserAuthTokens(
             refreshToken = tokenEntity.refreshToken.toString(),
-            authToken = jwt
+            authToken = createJwtToken(user.id)
         )
     }
+
+    private fun createJwtToken(userId: UUID) = JWT.create()
+        .withIssuer(config.issuer)
+        .withAudience(config.audience)
+        .withSubject(userId.toString())
+        // expire in 15 minutes
+        .withExpiresAt(Date(System.currentTimeMillis() + (15 * 60 * 1000)))
+        .sign(Algorithm.HMAC256(config.jwtSecret))
 
     @Serializable
     data class Config(

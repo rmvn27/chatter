@@ -1,9 +1,8 @@
 package chatter.lib.http
 
-import chatter.lib.app.AppScope
-import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
 import javax.inject.Inject
 
 // base for all routers for the application.
@@ -16,7 +15,8 @@ interface HttpRouter {
     fun Routing.routes()
 }
 
-@ContributesMultibinding(AppScope::class)
+typealias RouteContext = PipelineContext<Unit, ApplicationCall>
+
 class HttpRouterConfiguration @Inject constructor(
     private val routers: Set<@JvmSuppressWildcards HttpRouter>
 ) : HttpApplicationConfig {

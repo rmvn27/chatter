@@ -1,7 +1,7 @@
 package chatter.lib.http
 
-import chatter.lib.JsonParsers
 import chatter.lib.app.AppScope
+import chatter.lib.serialization.JsonParsers
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*

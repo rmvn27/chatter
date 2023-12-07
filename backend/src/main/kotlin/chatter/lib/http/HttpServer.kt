@@ -18,7 +18,8 @@ import javax.inject.Inject
 @ContributesMultibinding(AppScope::class)
 class HttpServer @Inject constructor(
     private val config: Config,
-    private val applicationConfigs: Set<@JvmSuppressWildcards HttpApplicationConfig>
+    private val applicationConfigs: Set<@JvmSuppressWildcards HttpApplicationConfig>,
+    private val httpRouterConfig: HttpRouterConfiguration
 ) : StatefulService {
     private var server: ApplicationEngine? = null
     private val logger by Logger
@@ -36,6 +37,9 @@ class HttpServer @Inject constructor(
             applicationConfigs.forEach {
                 with(it) { this@embeddedServer.configure() }
             }
+
+            // configure the routing only after all other plugins were configured
+            with(httpRouterConfig) { this@embeddedServer.configure() }
         }
     }
 

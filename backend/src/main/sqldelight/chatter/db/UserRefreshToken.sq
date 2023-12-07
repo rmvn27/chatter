@@ -1,2 +1,8 @@
+findByRefreshToken:
+SELECT * FROM UserRefreshTokenEntity WHERE refreshToken = :refreshToken;
+
 insert:
 INSERT INTO UserRefreshTokenEntity(refreshToken, userId) VALUES ?;
+
+deleteByRefreshToken:
+DELETE FROM UserRefreshTokenEntity WHERE refreshToken = :refreshToken;

@@ -1,4 +1,4 @@
-package chatter.lib
+package chatter.lib.serialization
 
 import kotlinx.serialization.json.Json
 

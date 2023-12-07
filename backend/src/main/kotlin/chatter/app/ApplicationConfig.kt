@@ -1,8 +1,8 @@
 package chatter.app
 
 import chatter.db.DatabaseService
-import chatter.lib.JsonParsers
 import chatter.lib.http.HttpServer
+import chatter.lib.serialization.JsonParsers
 import chatter.services.AuthService
 import kotlinx.serialization.Serializable
 import java.io.File
