@@ -1,0 +1,2 @@
+insert:
+INSERT INTO UserRefreshTokenEntity(refreshToken, userId) VALUES ?;

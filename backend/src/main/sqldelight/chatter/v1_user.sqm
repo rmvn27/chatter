@@ -1,0 +1,28 @@
+---------------------------------
+--- create user & auth tables ---
+---------------------------------
+
+-- simple user that for now just has a username and password
+CREATE TABLE UserEntity(
+  id UUID,
+
+  username VARCHAR NOT NULL,
+  password VARCHAR NOT NULL,
+
+  PRIMARY KEY(id),
+  UNIQUE(username)
+);
+
+CREATE INDEX userUsernameIdx ON UserEntity(username);
+
+-- persist the refresh tokens of a user so new emphemeral access tokens
+-- can be acquired with it
+CREATE TABLE UserRefreshTokenEntity(
+  -- UUID should have enough randomness that we can use it as an opaque token
+  refreshToken UUID,
+  userId UUID NOT NULL
+              REFERENCES UserEntity(id)
+              ON DELETE CASCADE,
+
+  PRIMARY KEY(refreshToken)
+);
