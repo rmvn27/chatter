@@ -48,7 +48,7 @@ class AuthService @Inject constructor(
         val jwtToken = createJwtToken(refreshTokenEntity.userId)
 
         return UserAuthTokens(
-            refreshToken = refreshToken.toString(),
+            refreshToken = refreshToken,
             authToken = jwtToken
         ).right()
     }
@@ -78,10 +78,8 @@ class AuthService @Inject constructor(
 
         withDb { queries.insert(tokenEntity) }
 
-
-
         return UserAuthTokens(
-            refreshToken = tokenEntity.refreshToken.toString(),
+            refreshToken = tokenEntity.refreshToken,
             authToken = createJwtToken(user.id)
         )
     }
