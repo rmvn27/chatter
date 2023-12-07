@@ -49,7 +49,7 @@ class AuthService @Inject constructor(
 
         return UserAuthTokens(
             refreshToken = refreshToken,
-            authToken = jwtToken
+            accessToken = jwtToken
         ).right()
     }
 
@@ -80,7 +80,7 @@ class AuthService @Inject constructor(
 
         return UserAuthTokens(
             refreshToken = tokenEntity.refreshToken,
-            authToken = createJwtToken(user.id)
+            accessToken = createJwtToken(user.id)
         )
     }
 
