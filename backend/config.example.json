@@ -1,0 +1,8 @@
+{
+  "auth": {
+    "jwtSecret": "<random string>"
+  },
+  "db": {
+    "password": "<password to the postgres db>"
+  }
+}

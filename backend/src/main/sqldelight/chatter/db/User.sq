@@ -1,0 +1,8 @@
+findByUsername:
+SELECT *
+FROM UserEntity
+WHERE username = :username;
+
+insert:
+INSERT INTO UserEntity(id, username, password)
+VALUES ?;

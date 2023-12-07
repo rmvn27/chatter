@@ -1,21 +1,13 @@
 package chatter
 
-import io.ktor.server.application.*
-import io.ktor.server.cio.*
-import io.ktor.server.engine.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import chatter.app.AppComponent
+import chatter.app.ApplicationConfig
+import chatter.app.startServices
+import chatter.lib.app.runApp
 
-fun main() {
-    val server = embeddedServer(CIO, port = 8081, host = "0.0.0.0", module = Application::mainModule)
+fun main() = runApp {
+    val config = ApplicationConfig.read()
+    val appComponent = AppComponent.create(config)
 
-    server.start(wait = true)
-}
-
-fun Application.mainModule() {
-    routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-    }
+    appComponent.startServices()
 }

@@ -1,14 +1,96 @@
 [versions]
 
+kotlin = "1.9.20"
+
 ktor = "2.3.6"
+sqldelight = "2.0.1"
+
+anvil = "2.4.8"
+dagger = "2.49"
 
 [bundles]
 
-ktorServer = ["ktorServer", "ktorServerCio"]
+kotlinx = ["kotlinxSerialization", "kotlinxCoroutines"]
+ktorServer = [
+  "ktorServer",
+  "ktorServerCio",
+  "ktorContentNegotiation",
+  "ktorContentJson",
+  "ktorAuth",
+  "ktorAuthJwt",
+  "ktorCors"
+]
+
+sql = ["sqldelightServerDriver", "sqldelightCoroutines", "hikari", "postgres"]
+
+arrow = ["arrowCore", "arrowCoroutines", "arrowSuspendApp"]
+logging = ["noopLogger", "kermit", "commonsLogging"]
+crypto = ["springCrypto", "bouncyCastle"]
 
 [libraries]
+
+##########
+# KOTLIN #
+##########
+
+kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.1" }
+kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.7.3" }
+
+########
+# HTTP #
+########
 
 ktorServer = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktorServerCio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 
+ktorContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktorContentJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
+ktorAuth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktorAuthJwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+
+ktorCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
+
+######
+# DB #
+######
+
+sqldelightPostgresDialect = { module = "app.cash.sqldelight:postgresql-dialect", version.ref = "sqldelight" }
+sqldelightServerDriver = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
+sqldelightCoroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+
+hikari = { module = "com.zaxxer:HikariCP", version = "5.0.1" }
+postgres = { module = "org.postgresql:postgresql", version = "42.6.0" }
+
+########
+# MISC #
+########
+
+arrowCore = { module = "io.arrow-kt:arrow-core", version = "1.2.0" }
+arrowCoroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version = "1.2.0" }
+arrowSuspendApp = { module = "io.arrow-kt:suspendapp", version = "0.4.0" }
+
+# spring has a nice abstraction in comparison to using bouncy castle itself
+# and this has not real dependencies to the whole spring ecosystem
+# so we can easily use it
+springCrypto = { module = "org.springframework.security:spring-security-crypto", version = "6.2.0" }
+bouncyCastle = { module = "org.bouncycastle:bcpkix-jdk18on", version = "1.77" }
+
+# Log adapters
+noopLogger = { module = "org.slf4j:slf4j-nop", version = "2.0.7" }
+commonsLogging = { module = "commons-logging:commons-logging", version = "1.3.0" }
+kermit = { module = "co.touchlab:kermit", version = "2.0.2" }
+
+# di
+dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
+daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+anvilAnnotations = { module = "com.squareup.anvil:annotations-optional", version.ref = "anvil" }
+
+[plugins]
+
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+anvil = { id = "com.squareup.anvil", version.ref = "anvil" }
