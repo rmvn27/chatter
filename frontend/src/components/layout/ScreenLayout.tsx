@@ -3,7 +3,6 @@ import { BaseLayout } from "./BaseLayout";
 
 type Props = {
   size?: "md" | "lg" | "xl" | "2xl";
-  navbar: JSXElement;
   children: JSXElement;
 };
 
@@ -18,7 +17,7 @@ export const ScreenLayout: Component<Props> = (props) => {
   const sizeClassesFn = () => sizeClasses[props.size ?? "lg"];
 
   return (
-    <BaseLayout navbar={props.navbar}>
+    <BaseLayout>
       <div class={`${sizeClassesFn()} w-full h-full mx-auto`}>{props.children}</div>
     </BaseLayout>
   );

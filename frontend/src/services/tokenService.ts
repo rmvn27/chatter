@@ -3,6 +3,7 @@ import { createLocalStorageSignal } from "@/lib/signals/localStorage";
 import type { AuthTokens } from "@/models/auth";
 import type { Accessor } from "solid-js";
 
+// manage persistance and access for the auth tokens in the application
 export class TokenService {
   // HACK: the `TokenService` needs to be accessible for fetching
   // the api data so to not pass it everywhere it's easier to just
