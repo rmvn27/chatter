@@ -29,29 +29,25 @@ class AuthRouter @Inject constructor(
 
     private suspend fun RouteContext.register() {
         val request = call.receive<AuthRequest>()
-        val tokens = authService.register(
+        authService.register(
             username = request.username,
             password = request.password
-        )
-
-        call.respondWithError(tokens)
+        ).respondWithError()
     }
 
     private suspend fun RouteContext.login() {
         val request = call.receive<AuthRequest>()
-        val tokens = authService.login(
+        authService.login(
             username = request.username,
             password = request.password
-        )
-
-        call.respondWithError(tokens)
+        ).respondWithError()
     }
 
     private suspend fun RouteContext.regenerateTokens() {
         val request = call.receive<RegenerateTokensRequest>()
 
-        val tokens = authService.regenerateTokens(request.refreshToken)
-        call.respondWithError(tokens)
+        authService.regenerateTokens(request.refreshToken)
+            .respondWithError()
     }
 
     private suspend fun RouteContext.logout() {

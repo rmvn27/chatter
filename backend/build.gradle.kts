@@ -49,4 +49,6 @@ dependencies {
     implementation(libs.dagger)
     implementation(libs.anvilAnnotations)
     kapt(libs.daggerCompiler)
+
+    implementation(libs.slugify)
 }

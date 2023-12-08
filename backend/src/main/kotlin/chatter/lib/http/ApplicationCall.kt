@@ -11,7 +11,7 @@ import kotlinx.serialization.json.put
 
 
 // if we are authenticated we certainly have a `UserPrincipal` and shouldn't get a NPE
-val ApplicationCall.user get() = principal<UserPrincipal>()!!
+val ApplicationCall.userId get() = principal<UserPrincipal>()!!.userId
 
 // either respond successful response or respond with the application error
 // where the status is set and the error message is provided in a json object
@@ -24,3 +24,9 @@ suspend inline fun <reified T : Any> ApplicationCall.respondWithError(data: Eith
         is Either.Right -> respond<T>(data.value)
     }
 }
+
+context(RouteContext)
+suspend inline fun <reified T : Any> T.respond() = call.respond(this)
+
+context(RouteContext)
+suspend inline fun <reified T : Any> Either<ApplicationError, T>.respondWithError() = call.respondWithError(this)

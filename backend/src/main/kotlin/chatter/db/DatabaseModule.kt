@@ -9,8 +9,11 @@ import dagger.Provides
 @ContributesTo(AppScope::class)
 object DatabaseModule {
     @Provides
-    fun providerUserQueries(db: DatabaseService) = db.queries.userQueries
+    fun provideUserQueries(db: DatabaseService) = db.queries.userQueries
 
     @Provides
-    fun providerUserRefreshTokenQueries(db: DatabaseService) = db.queries.userRefreshTokenQueries
+    fun provideUserRefreshTokenQueries(db: DatabaseService) = db.queries.userRefreshTokenQueries
+
+    @Provides
+    fun provideTeamQueries(db: DatabaseService) = db.queries.teamQueries
 }

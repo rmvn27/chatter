@@ -12,6 +12,7 @@ import chatter.db.withDb
 import chatter.errors.ApplicationError
 import chatter.errors.BadAuthError
 import chatter.errors.BadRefreshToken
+import chatter.lib.toUUID
 import chatter.models.UserAuthTokens
 import chatter.models.UserPrincipal
 import com.auth0.jwt.JWT
@@ -67,7 +68,9 @@ class AuthService @Inject constructor(
             algorithm = Algorithm.HMAC256(config.jwtSecret)
         )
 
-        validate { UserPrincipal(it.payload.subject) }
+        validate {
+            UserPrincipal(it.payload.subject.toUUID())
+        }
     }
 
     private suspend fun createTokens(user: UserEntity): UserAuthTokens {
