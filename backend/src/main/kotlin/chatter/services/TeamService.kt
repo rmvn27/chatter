@@ -31,10 +31,22 @@ class TeamService @Inject constructor(
         return ownTeams + sharedTeams
     }
 
-    suspend fun findById(userId: UUID, teamId: UUID) = either {
-        val teamEntity = findOrError(teamId).bind()
+    suspend fun findBySlug(userId: UUID, teamSlug: String) = either {
+        val teamEntity = findEntity(teamSlug).bind()
 
         teamEntity.toDomain(userId)
+    }
+
+    suspend fun findEntity(slug: String): Either<ApplicationError, TeamEntity> {
+        val entity = queries.findBySlug(slug)
+            .asOptional()
+            ?: return ProjectNotFoundError(slug).left()
+
+        return entity.right()
+    }
+
+    suspend fun addUserToTeam(userId: UUID, team: TeamEntity) {
+
     }
 
     suspend fun create(name: String, userId: UUID): Team {
@@ -50,8 +62,8 @@ class TeamService @Inject constructor(
         return entity.toDomain(true)
     }
 
-    suspend fun update(userId: UUID, teamId: UUID, name: String?) = either {
-        val existingEntity = findOrError(teamId).bind()
+    suspend fun update(userId: UUID, teamSlug: String, name: String?) = either {
+        val existingEntity = findEntity(teamSlug).bind()
 
         if (name != null && name != existingEntity.name) {
             val newSlug = Slug.slugify(name)
@@ -73,15 +85,7 @@ class TeamService @Inject constructor(
         }
     }
 
-    suspend fun delete(id: UUID) = withDb {
-        queries.deleteById(id)
-    }
-
-    private suspend fun findOrError(teamId: UUID): Either<ApplicationError, TeamEntity> {
-        val entity = queries.findById(teamId)
-            .asOptional()
-            ?: return ProjectNotFoundError(teamId).left()
-
-        return entity.right()
+    suspend fun delete(slug: String) = withDb {
+        queries.deleteBySlug(slug)
     }
 }

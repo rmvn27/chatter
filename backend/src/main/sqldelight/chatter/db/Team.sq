@@ -8,8 +8,8 @@ JOIN TeamParticipantEntity tp
 WHERE team.id = tp.teamId
 AND tp.userId = :userId;
 
-findById:
-SELECT * FROM TeamEntity WHERE id = :id;
+findBySlug:
+SELECT * FROM TeamEntity WHERE slug = :slug;
 
 create:
 INSERT INTO TeamEntity VALUES ?;
@@ -21,5 +21,5 @@ SET
   slug = :slug
 WHERE id = :id;
 
-deleteById:
-DELETE FROM TeamEntity WHERE id = :id;
+deleteBySlug:
+DELETE FROM TeamEntity WHERE slug = :slug;

@@ -1,6 +1,9 @@
 findByTeam:
 SELECT * FROM TeamInviteEntity WHERE teamId = :teamId;
 
+findByInvite:
+SELECT * FROM TeamInviteEntity WHERE invite = :invite;
+
 create:
 INSERT INTO TeamInviteEntity VALUES ?;
 

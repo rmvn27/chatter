@@ -1,0 +1,5 @@
+findByTeamId:
+SELECT * FROM TeamParticipantEntity WHERE teamId = :teamId;
+
+create:
+INSERT INTO TeamParticipantEntity VALUES ?;

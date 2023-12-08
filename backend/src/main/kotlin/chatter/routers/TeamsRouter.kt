@@ -6,7 +6,6 @@ import chatter.lib.http.RouteContext
 import chatter.lib.http.respond
 import chatter.lib.http.respondWithError
 import chatter.lib.http.userId
-import chatter.lib.toUUID
 import chatter.services.TeamService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.server.application.*
@@ -24,10 +23,10 @@ class TeamsRouter @Inject constructor(
     override fun Routing.routes() {
         authenticate {
             get("/teams") { findMany() }
-            get("/teams/{teamId}") { findById() }
+            get("/teams/{teamSlug}") { findById() }
             post("/teams") { create() }
-            patch("/teams/{teamId}") { update() }
-            delete("/teams/{teamId}") { delete() }
+            patch("/teams/{teamSlug}") { update() }
+            delete("/teams/{teamSlug}") { delete() }
         }
     }
 
@@ -36,9 +35,9 @@ class TeamsRouter @Inject constructor(
     }
 
     private suspend fun RouteContext.findById() {
-        service.findById(
+        service.findBySlug(
             userId = call.userId,
-            teamId = call.teamId
+            teamSlug = call.teamSlug
         ).respondWithError()
     }
 
@@ -51,13 +50,13 @@ class TeamsRouter @Inject constructor(
         val body = call.receive<UpdateRequest>()
         service.update(
             userId = call.userId,
-            teamId = call.teamId,
+            teamSlug = call.teamSlug,
             name = body.name
         ).respondWithError()
     }
 
     private suspend fun RouteContext.delete() {
-        service.delete(call.teamId)
+        service.delete(call.teamSlug)
     }
 
     @Serializable
@@ -70,5 +69,5 @@ class TeamsRouter @Inject constructor(
         val name: String? = null
     )
 
-    private val ApplicationCall.teamId get() = parameters.getOrFail("teamId").toUUID()
+    private val ApplicationCall.teamSlug get() = parameters.getOrFail("teamSlug")
 }
