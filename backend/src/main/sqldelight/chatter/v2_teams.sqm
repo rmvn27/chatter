@@ -31,3 +31,13 @@ CREATE TABLE TeamParticipantEntity(
 );
 
 CREATE INDEX TeamParticipantEntityTeamIdIndex ON TeamParticipantEntity(userId);
+
+CREATE TABLE TeamInviteEntity(
+  invite UUID,
+
+  teamId UUID NOT NULL
+              REFERENCES TeamEntity(id)
+              ON DELETE CASCADE,
+
+  PRIMARY KEY (invite)
+);

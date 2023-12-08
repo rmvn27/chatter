@@ -22,3 +22,11 @@ fun TeamEntity.toDomain(isOwner: Boolean) = Team(
     name = name,
     isOwner = isOwner
 )
+
+// this call will be inlined and is only used for type safety
+@Serializable
+@JvmInline
+value class TeamInvite(
+    @Serializable(with = UUIDSerializer::class)
+    val invite: UUID
+)

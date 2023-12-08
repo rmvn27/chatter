@@ -16,4 +16,7 @@ object DatabaseModule {
 
     @Provides
     fun provideTeamQueries(db: DatabaseService) = db.queries.teamQueries
+
+    @Provides
+    fun provideTeamInviteQueries(db: DatabaseService) = db.queries.teamInviteQueries
 }
