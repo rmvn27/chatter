@@ -1,15 +1,12 @@
 package chatter.services
 
-import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.either
-import arrow.core.right
 import chatter.TeamEntity
 import chatter.db.TeamQueries
 import chatter.db.asList
 import chatter.db.asOptional
+import chatter.db.insert
 import chatter.db.withDb
-import chatter.errors.ApplicationError
 import chatter.errors.ProjectNotFoundError
 import chatter.lib.Slug
 import chatter.models.Team
@@ -37,16 +34,12 @@ class TeamService @Inject constructor(
         teamEntity.toDomain(userId)
     }
 
-    suspend fun findEntity(slug: String): Either<ApplicationError, TeamEntity> {
+    suspend fun findEntity(slug: String) = either {
         val entity = queries.findBySlug(slug)
             .asOptional()
-            ?: return ProjectNotFoundError(slug).left()
+            ?: raise(ProjectNotFoundError(slug))
 
-        return entity.right()
-    }
-
-    suspend fun addUserToTeam(userId: UUID, team: TeamEntity) {
-
+        entity
     }
 
     suspend fun create(name: String, userId: UUID): Team {
@@ -55,9 +48,7 @@ class TeamService @Inject constructor(
             name = name,
             slug = Slug.slugify(name),
             ownerId = userId
-        )
-
-        withDb { queries.create(entity) }
+        ).insert(queries::create)
 
         return entity.toDomain(true)
     }

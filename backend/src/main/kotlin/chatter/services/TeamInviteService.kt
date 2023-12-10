@@ -1,15 +1,11 @@
 package chatter.services
 
-import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.either
-import arrow.core.right
 import chatter.TeamInviteEntity
 import chatter.db.TeamInviteQueries
 import chatter.db.asList
 import chatter.db.asOptional
 import chatter.db.withDb
-import chatter.errors.ApplicationError
 import chatter.errors.TeamInviteNotFoundError
 import chatter.models.TeamInvite
 import java.util.UUID
@@ -39,6 +35,7 @@ class TeamInviteService @Inject constructor(
         delete(invite)
     }
 
+    // TODO: Authorization
     suspend fun create(teamSlug: String) = either {
         val team = teamService.findEntity(teamSlug).bind()
         val invite = TeamInvite(UUID.randomUUID())
@@ -58,11 +55,11 @@ class TeamInviteService @Inject constructor(
         queries.delete(invite)
     }
 
-    private suspend fun findOrError(invite: UUID): Either<ApplicationError, TeamInviteEntity> {
+    private suspend fun findOrError(invite: UUID) = either {
         val entity = queries.findByInvite(invite)
             .asOptional()
-            ?: return TeamInviteNotFoundError(invite).left()
+            ?: raise(TeamInviteNotFoundError(invite))
 
-        return entity.right()
+        entity
     }
 }

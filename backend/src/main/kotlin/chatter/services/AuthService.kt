@@ -1,15 +1,12 @@
 package chatter.services
 
-import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.either
-import arrow.core.right
 import chatter.UserEntity
 import chatter.UserRefreshTokenEntity
 import chatter.db.UserRefreshTokenQueries
 import chatter.db.asOptional
+import chatter.db.insert
 import chatter.db.withDb
-import chatter.errors.ApplicationError
 import chatter.errors.BadAuthError
 import chatter.errors.BadRefreshToken
 import chatter.lib.toUUID
@@ -34,24 +31,24 @@ class AuthService @Inject constructor(
         createTokens(newUser)
     }
 
-    suspend fun login(username: String, password: String): Either<ApplicationError, UserAuthTokens> {
-        val user = userService.findByUsername(username) ?: return BadAuthError.left()
-        if (!userService.verifyPassword(user, password)) return BadAuthError.left()
+    suspend fun login(username: String, password: String) = either {
+        val user = userService.findByUsername(username) ?: raise(BadAuthError)
+        if (!userService.verifyPassword(user, password)) raise(BadAuthError)
 
-        return createTokens(user).right()
+        createTokens(user)
     }
 
-    suspend fun regenerateTokens(refreshToken: UUID): Either<ApplicationError, UserAuthTokens> {
+    suspend fun regenerateTokens(refreshToken: UUID) = either {
         // check the validity if the refreshToken and look up the userId
         val refreshTokenEntity = queries.findByRefreshToken(refreshToken)
             .asOptional()
-            ?: return BadRefreshToken.left()
+            ?: raise(BadRefreshToken)
         val jwtToken = createJwtToken(refreshTokenEntity.userId)
 
-        return UserAuthTokens(
+        UserAuthTokens(
             refreshToken = refreshToken,
             accessToken = jwtToken
-        ).right()
+        )
     }
 
     suspend fun logout(refreshToken: UUID) = withDb {
@@ -77,9 +74,7 @@ class AuthService @Inject constructor(
         val tokenEntity = UserRefreshTokenEntity(
             refreshToken = UUID.randomUUID(),
             userId = user.id
-        )
-
-        withDb { queries.insert(tokenEntity) }
+        ).insert(queries::insert)
 
         return UserAuthTokens(
             refreshToken = tokenEntity.refreshToken,
