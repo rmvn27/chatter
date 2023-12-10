@@ -2,6 +2,8 @@ package chatter.routers
 
 import arrow.core.raise.Raise
 import chatter.errors.ApplicationError
+import chatter.http.IsTeamOwnerAuthorizationPlugin
+import chatter.http.isTeamOwner
 import chatter.http.userId
 import chatter.lib.app.AppScope
 import chatter.lib.http.HttpRouter
@@ -21,16 +23,21 @@ import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
 class TeamInviteRouter @Inject constructor(
-    private val service: TeamInviteService
+    private val service: TeamInviteService,
+    private val authorization: IsTeamOwnerAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {
-            get("/teams/{teamSlug}/invites") { findMany() }
-            post("/teams/{teamSlug}/invites") { create() }
+            // non team owners are allowed to claim invites for a team
+            post("/teams/{teamSlug}/invites/{invite}/claim") { claimInvite() }
 
-            delete("/teams/{teamSlug}/invites/{invite}") { delete() }
+            // only team owners are allowed to see, create and delete invites
+            isTeamOwner(authorization) {
+                get("/teams/{teamSlug}/invites") { findMany() }
+                post("/teams/{teamSlug}/invites") { create() }
 
-            post("/teams/{teamId}/invites/{invite}/claim") { claimInvite() }
+                delete("/teams/{teamSlug}/invites/{invite}") { delete() }
+            }
         }
     }
 

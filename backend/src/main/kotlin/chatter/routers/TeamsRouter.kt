@@ -2,6 +2,8 @@ package chatter.routers
 
 import arrow.core.raise.Raise
 import chatter.errors.ApplicationError
+import chatter.http.IsTeamOwnerAuthorizationPlugin
+import chatter.http.isTeamOwner
 import chatter.http.userId
 import chatter.lib.app.AppScope
 import chatter.lib.http.HttpRouter
@@ -22,15 +24,20 @@ import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
 class TeamsRouter @Inject constructor(
-    private val service: TeamService
+    private val service: TeamService,
+    private val authorization: IsTeamOwnerAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {
             get("/teams") { findMany() }
             get("/teams/{teamSlug}") { findById() }
             post("/teams") { create() }
-            patch("/teams/{teamSlug}") { update() }
-            delete("/teams/{teamSlug}") { delete() }
+
+            // only team owners can update and delete their teams
+            isTeamOwner(authorization) {
+                patch("/teams/{teamSlug}") { update() }
+                delete("/teams/{teamSlug}") { delete() }
+            }
         }
     }
 

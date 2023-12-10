@@ -7,7 +7,7 @@ import chatter.db.asList
 import chatter.db.asOne
 import chatter.db.insert
 import chatter.db.withDb
-import chatter.errors.ProjectNotFoundError
+import chatter.errors.TeamNotFoundError
 import chatter.lib.Slug
 import chatter.models.Team
 import chatter.models.toDomain
@@ -35,7 +35,7 @@ class TeamService @Inject constructor(
     }
 
     suspend fun findEntity(slug: String) = either {
-        queries.findBySlug(slug).asOne { ProjectNotFoundError(slug) }
+        queries.findBySlug(slug).asOne { TeamNotFoundError(slug) }
     }
 
     suspend fun create(name: String, userId: UUID): Team {

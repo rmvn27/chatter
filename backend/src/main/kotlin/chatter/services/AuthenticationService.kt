@@ -20,7 +20,7 @@ import java.util.Date
 import java.util.UUID
 import javax.inject.Inject
 
-class AuthService @Inject constructor(
+class AuthenticationService @Inject constructor(
     private val userService: UserService,
     private val queries: UserRefreshTokenQueries,
     private val config: Config

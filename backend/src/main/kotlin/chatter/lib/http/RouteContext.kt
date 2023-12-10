@@ -24,12 +24,15 @@ typealias RouteContext = PipelineContext<Unit, ApplicationCall>
 suspend fun RouteContext.handle(block: suspend Raise<ApplicationError>.() -> Unit) {
     val result = either { block() }
 
-    // we don't care about the successful value if an error gets raised
-    // we set the proper status code and put the message in a json object
-    result.onLeft {
-        call.response.status(it.status)
-        call.respond(buildJsonObject { put("message", it.message) })
-    }
+    // we don't care about the successful value and only care if an error gets raised
+    result.onLeft { call.respondError(it) }
+}
+
+
+// we set the proper status code and put the message in a json object
+suspend fun ApplicationCall.respondError(error: ApplicationError) {
+    response.status(error.status)
+    respond(buildJsonObject { put("message", error.message) })
 }
 
 fun ApplicationCall.status(statusCode: HttpStatusCode) = response.status(statusCode)

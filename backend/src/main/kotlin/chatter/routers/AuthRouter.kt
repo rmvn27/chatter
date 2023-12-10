@@ -6,7 +6,7 @@ import chatter.lib.http.RouteContext
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import chatter.lib.serialization.UUIDSerializer
-import chatter.services.AuthService
+import chatter.services.AuthenticationService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
 class AuthRouter @Inject constructor(
-    private val authService: AuthService
+    private val authService: AuthenticationService
 ) : HttpRouter {
     override fun Routing.routes() {
         post("/auth/register") { register() }
