@@ -1,0 +1,43 @@
+--------------------------
+-- add tables for teams --
+--------------------------
+
+CREATE TABLE TeamEntity(
+    id UUID,
+
+    name VARCHAR NOT NULL,
+    slug VARCHAR NOT NULL,
+
+    ownerId UUID NOT NULL
+                 REFERENCES UserEntity(id)
+                 ON DELETE CASCADE,
+
+    UNIQUE(slug),
+    PRIMARY KEY(id)
+);
+
+CREATE INDEX TeamEntitySlugIndex ON TeamEntity(slug);
+
+CREATE TABLE TeamParticipantEntity(
+  teamId UUID NOT NULL
+              REFERENCES TeamEntity(id)
+              ON DELETE CASCADE,
+
+  userId UUID NOT NULL
+              REFERENCES UserEntity(id)
+              ON DELETE CASCADE,
+
+  PRIMARY KEY(teamId, userId)
+);
+
+CREATE INDEX TeamParticipantEntityTeamIdIndex ON TeamParticipantEntity(userId);
+
+CREATE TABLE TeamInviteEntity(
+  invite UUID,
+
+  teamId UUID NOT NULL
+              REFERENCES TeamEntity(id)
+              ON DELETE CASCADE,
+
+  PRIMARY KEY (invite)
+);

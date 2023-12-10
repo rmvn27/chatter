@@ -1,4 +1,4 @@
-package chatter.lib.http
+package chatter.lib.http.config
 
 import chatter.lib.app.AppScope
 import chatter.lib.serialization.JsonParsers

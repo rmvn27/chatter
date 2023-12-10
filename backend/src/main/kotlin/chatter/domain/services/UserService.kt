@@ -1,13 +1,10 @@
-package chatter.services
+package chatter.domain.services
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
+import arrow.core.raise.either
 import chatter.UserEntity
 import chatter.db.UserQueries
 import chatter.db.asOptional
-import chatter.db.withDb
-import chatter.errors.ApplicationError
+import chatter.db.insert
 import chatter.errors.UserAlreadyExistsError
 import chatter.lib.app.AppScope
 import com.squareup.anvil.annotations.optional.SingleIn
@@ -30,20 +27,17 @@ class UserService @Inject constructor(
     suspend fun create(
         username: String,
         password: String
-    ): Either<ApplicationError, UserEntity> {
+    ) = either {
         // check for user with the same username
-        if (findByUsername(username) != null) return UserAlreadyExistsError(username).left()
+        if (findByUsername(username) != null) raise(UserAlreadyExistsError(username))
 
         val hashedPassword = passwordEncoder.encode(password)
 
-        val entity = UserEntity(
+        UserEntity(
             id = UUID.randomUUID(),
             username = username,
             password = hashedPassword
-        )
-
-        withDb { queries.insert(entity) }
-        return entity.right()
+        ).insert(queries::insert)
     }
 
     fun verifyPassword(user: UserEntity, providedPassword: String) =

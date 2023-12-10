@@ -1,0 +1,12 @@
+findByTeamId:
+SELECT user.*
+FROM UserEntity user
+JOIN TeamParticipantEntity tp
+WHERE user.id = tp.userId
+AND teamId = :teamId;
+
+create:
+INSERT INTO TeamParticipantEntity VALUES ?;
+
+delete:
+DELETE FROM TeamParticipantEntity WHERE userId = :userId AND teamId = :teamId;

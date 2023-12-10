@@ -8,3 +8,8 @@ data object BadAuthError : ApplicationError(
 )
 
 data object BadRefreshToken : ApplicationError("The provided refresh token is invalid!", HttpStatusCode.Unauthorized)
+
+data object UserIsNotTeamOwnerError : ApplicationError(
+    "This action cannot be performed by the logged in user",
+    HttpStatusCode.Forbidden
+)

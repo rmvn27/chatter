@@ -1,0 +1,25 @@
+findForOwner:
+SELECT * FROM TeamEntity WHERE ownerId = :ownerId;
+
+findSharedForUser:
+SELECT team.*
+FROM TeamEntity team
+JOIN TeamParticipantEntity tp
+WHERE team.id = tp.teamId
+AND tp.userId = :userId;
+
+findBySlug:
+SELECT * FROM TeamEntity WHERE slug = :slug;
+
+create:
+INSERT INTO TeamEntity VALUES ?;
+
+update:
+UPDATE TeamEntity
+SET
+  name = :name,
+  slug = :slug
+WHERE id = :id;
+
+deleteById:
+DELETE FROM TeamEntity WHERE id = :id;

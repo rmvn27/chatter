@@ -86,6 +86,8 @@ dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 anvilAnnotations = { module = "com.squareup.anvil:annotations-optional", version.ref = "anvil" }
 
+slugify = { module = "com.github.slugify:slugify", version = "3.0.6" }
+
 [plugins]
 
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

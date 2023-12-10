@@ -1,19 +1,18 @@
-package chatter.services
+package chatter.domain.services.auth
 
-import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.either
-import arrow.core.right
 import chatter.UserEntity
 import chatter.UserRefreshTokenEntity
 import chatter.db.UserRefreshTokenQueries
 import chatter.db.asOptional
+import chatter.db.insert
 import chatter.db.withDb
-import chatter.errors.ApplicationError
 import chatter.errors.BadAuthError
 import chatter.errors.BadRefreshToken
+import chatter.lib.toUUID
 import chatter.models.UserAuthTokens
 import chatter.models.UserPrincipal
+import chatter.domain.services.UserService
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.server.auth.jwt.*
@@ -22,7 +21,7 @@ import java.util.Date
 import java.util.UUID
 import javax.inject.Inject
 
-class AuthService @Inject constructor(
+class AuthenticationService @Inject constructor(
     private val userService: UserService,
     private val queries: UserRefreshTokenQueries,
     private val config: Config
@@ -33,24 +32,24 @@ class AuthService @Inject constructor(
         createTokens(newUser)
     }
 
-    suspend fun login(username: String, password: String): Either<ApplicationError, UserAuthTokens> {
-        val user = userService.findByUsername(username) ?: return BadAuthError.left()
-        if (!userService.verifyPassword(user, password)) return BadAuthError.left()
+    suspend fun login(username: String, password: String) = either {
+        val user = userService.findByUsername(username) ?: raise(BadAuthError)
+        if (!userService.verifyPassword(user, password)) raise(BadAuthError)
 
-        return createTokens(user).right()
+        createTokens(user)
     }
 
-    suspend fun regenerateTokens(refreshToken: UUID): Either<ApplicationError, UserAuthTokens> {
+    suspend fun regenerateTokens(refreshToken: UUID) = either {
         // check the validity if the refreshToken and look up the userId
         val refreshTokenEntity = queries.findByRefreshToken(refreshToken)
             .asOptional()
-            ?: return BadRefreshToken.left()
+            ?: raise(BadRefreshToken)
         val jwtToken = createJwtToken(refreshTokenEntity.userId)
 
-        return UserAuthTokens(
+        UserAuthTokens(
             refreshToken = refreshToken,
             accessToken = jwtToken
-        ).right()
+        )
     }
 
     suspend fun logout(refreshToken: UUID) = withDb {
@@ -67,16 +66,16 @@ class AuthService @Inject constructor(
             algorithm = Algorithm.HMAC256(config.jwtSecret)
         )
 
-        validate { UserPrincipal(it.payload.subject) }
+        validate {
+            UserPrincipal(it.payload.subject.toUUID())
+        }
     }
 
     private suspend fun createTokens(user: UserEntity): UserAuthTokens {
         val tokenEntity = UserRefreshTokenEntity(
             refreshToken = UUID.randomUUID(),
             userId = user.id
-        )
-
-        withDb { queries.insert(tokenEntity) }
+        ).insert(queries::insert)
 
         return UserAuthTokens(
             refreshToken = tokenEntity.refreshToken,
