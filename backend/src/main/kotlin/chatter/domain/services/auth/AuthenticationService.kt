@@ -1,4 +1,4 @@
-package chatter.services
+package chatter.domain.services.auth
 
 import arrow.core.raise.either
 import chatter.UserEntity
@@ -12,6 +12,7 @@ import chatter.errors.BadRefreshToken
 import chatter.lib.toUUID
 import chatter.models.UserAuthTokens
 import chatter.models.UserPrincipal
+import chatter.domain.services.UserService
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.server.auth.jwt.*

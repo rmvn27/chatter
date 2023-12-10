@@ -2,7 +2,7 @@ findByTeam:
 SELECT * FROM TeamInviteEntity WHERE teamId = :teamId;
 
 findByInvite:
-SELECT * FROM TeamInviteEntity WHERE invite = :invite;
+SELECT * FROM TeamInviteEntity WHERE invite = :invite AND teamId = :teamId;
 
 create:
 INSERT INTO TeamInviteEntity VALUES ?;

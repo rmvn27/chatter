@@ -1,4 +1,4 @@
-package chatter.services
+package chatter.domain.services
 
 import arrow.core.raise.either
 import chatter.UserEntity

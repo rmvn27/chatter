@@ -1,4 +1,4 @@
-package chatter.routers
+package chatter.http.routers
 
 import arrow.core.raise.Raise
 import chatter.errors.ApplicationError
@@ -11,7 +11,8 @@ import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.http.status
-import chatter.services.TeamService
+import chatter.lib.serialization.UUIDSerializer
+import chatter.domain.services.TeamService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -20,6 +21,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import java.util.UUID
 import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
@@ -33,7 +35,9 @@ class TeamsRouter @Inject constructor(
             get("/teams/{teamSlug}") { findById() }
             post("/teams") { create() }
 
-//            post("/teams/{teamSlug}/leave") { create() }
+            // a user is always allowed to just leave a team by himself
+            post("/teams/{teamSlug}/leave") { leave() }
+            post("/teams/{teamSlug}/join") { join() }
 
             // only team owners can update and delete their teams
             isTeamOwner(authorization, "teamSlug") {
@@ -55,6 +59,23 @@ class TeamsRouter @Inject constructor(
         ).bind()
 
         call.respond(team)
+    }
+
+    private suspend fun RouteContext.join() = handle {
+        val invite = call.receive<JoinRequest>().invite
+
+        service.joinTeam(
+            slug = call.teamSlug,
+            invite = invite,
+            userId = call.userId
+        ).bind()
+    }
+
+    private suspend fun RouteContext.leave() = handle {
+        service.removeUserFromTeam(
+            slug = call.teamSlug,
+            userId = call.userId
+        ).bind()
     }
 
     private suspend fun RouteContext.create() {
@@ -79,6 +100,12 @@ class TeamsRouter @Inject constructor(
     private suspend fun RouteContext.delete() = handle {
         service.delete(call.teamSlug)
     }
+
+    @Serializable
+    data class JoinRequest(
+        @Serializable(with = UUIDSerializer::class)
+        val invite: UUID
+    )
 
     @Serializable
     data class CreateRequest(

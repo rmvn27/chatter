@@ -5,7 +5,7 @@ import chatter.lib.http.getParam
 import chatter.lib.http.plugin.HttpRoutePlugin
 import chatter.lib.http.plugin.onWithError
 import chatter.lib.http.plugin.withPlugin
-import chatter.services.AuthorizationService
+import chatter.domain.services.auth.AuthorizationService
 import com.squareup.anvil.annotations.optional.SingleIn
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

@@ -1,4 +1,4 @@
-package chatter.routers
+package chatter.http.routers
 
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
@@ -6,7 +6,7 @@ import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import chatter.lib.serialization.UUIDSerializer
-import chatter.services.AuthenticationService
+import chatter.domain.services.auth.AuthenticationService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.server.application.*

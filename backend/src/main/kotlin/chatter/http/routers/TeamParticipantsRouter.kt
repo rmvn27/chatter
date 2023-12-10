@@ -1,4 +1,4 @@
-package chatter.routers
+package chatter.http.routers
 
 import arrow.core.raise.Raise
 import chatter.errors.ApplicationError
@@ -10,7 +10,7 @@ import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.toUUID
-import chatter.services.TeamParticipantService
+import chatter.domain.services.TeamParticipantService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -19,7 +19,7 @@ import io.ktor.server.routing.*
 import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
-class TeamParticipantRouter @Inject constructor(
+class TeamParticipantsRouter @Inject constructor(
     private val service: TeamParticipantService,
     private val authorization: IsTeamOwnerAuthorizationPlugin
 ) : HttpRouter {

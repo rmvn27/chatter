@@ -1,10 +1,9 @@
-package chatter.routers
+package chatter.http.routers
 
 import arrow.core.raise.Raise
 import chatter.errors.ApplicationError
 import chatter.http.IsTeamOwnerAuthorizationPlugin
 import chatter.http.isTeamOwner
-import chatter.http.userId
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
@@ -12,7 +11,7 @@ import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import chatter.lib.toUUID
-import chatter.services.TeamInviteService
+import chatter.domain.services.TeamInviteService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -22,15 +21,12 @@ import io.ktor.server.routing.*
 import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
-class TeamInviteRouter @Inject constructor(
+class TeamInvitesRouter @Inject constructor(
     private val service: TeamInviteService,
     private val authorization: IsTeamOwnerAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {
-            // non team owners are allowed to claim invites for a team
-            post("/teams/{teamSlug}/invites/{invite}/claim") { claimInvite() }
-
             // only team owners are allowed to see, create and delete invites
             isTeamOwner(authorization, "teamSlug") {
                 get("/teams/{teamSlug}/invites") { findMany() }
@@ -52,14 +48,6 @@ class TeamInviteRouter @Inject constructor(
 
         call.status(HttpStatusCode.Created)
         call.respond(invite)
-    }
-
-    private suspend fun RouteContext.claimInvite() = handle {
-        service.claim(
-            userId = call.userId,
-            teamSlug = call.teamSlug,
-            invite = call.invite
-        ).bind()
     }
 
     private suspend fun RouteContext.delete() = handle {
