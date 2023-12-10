@@ -34,7 +34,7 @@ class TeamsRouter @Inject constructor(
             post("/teams") { create() }
 
             // only team owners can update and delete their teams
-            isTeamOwner(authorization) {
+            isTeamOwner(authorization, "teamSlug") {
                 patch("/teams/{teamSlug}") { update() }
                 delete("/teams/{teamSlug}") { delete() }
             }

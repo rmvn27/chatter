@@ -18,18 +18,29 @@ import javax.inject.Inject
 @SingleIn(AppScope::class)
 class IsTeamOwnerAuthorizationPlugin @Inject constructor(
     private val authorization: AuthorizationService
-) : HttpRoutePlugin() {
+) : HttpRoutePlugin<IsTeamOwnerAuthorizationPlugin.Config>() {
     override val name = "isTeamOwnerAuthorization"
 
-    override fun RouteScopedPluginBuilder<Unit>.build() {
+    override fun createConfig() = Config()
+    override fun RouteScopedPluginBuilder<Config>.build() {
         // check after a successful authentication
         onWithError(AuthenticationChecked) { call ->
             val userId = call.userId
-            val teamSlug = call.getParam("teamSlug")
+            val teamSlug = call.getParam(pluginConfig.teamSlugParam)
 
             authorization.authorizeTeamOwner(userId, teamSlug).bind()
         }
     }
+
+    // provide the parameter where the teamSlug can be found
+    data class Config(var teamSlugParam: String = "")
 }
 
-fun Route.isTeamOwner(plugin: IsTeamOwnerAuthorizationPlugin, block: Route.() -> Unit) = withPlugin(plugin, block)
+// the parameter of for the `teamSlug` has to be provided explicitly
+// to make sure the right one is always picked up and each router
+// can define it however it wants
+fun Route.isTeamOwner(
+    plugin: IsTeamOwnerAuthorizationPlugin,
+    teamSlugParam: String,
+    block: Route.() -> Unit
+) = withPlugin(plugin, block) { this.teamSlugParam = teamSlugParam }

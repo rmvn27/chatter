@@ -32,7 +32,7 @@ class TeamInviteRouter @Inject constructor(
             post("/teams/{teamSlug}/invites/{invite}/claim") { claimInvite() }
 
             // only team owners are allowed to see, create and delete invites
-            isTeamOwner(authorization) {
+            isTeamOwner(authorization, "teamSlug") {
                 get("/teams/{teamSlug}/invites") { findMany() }
                 post("/teams/{teamSlug}/invites") { create() }
 
