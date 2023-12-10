@@ -6,8 +6,8 @@ import chatter.http.IsTeamOwnerAuthorizationPlugin
 import chatter.http.isTeamOwner
 import chatter.http.userId
 import chatter.lib.app.AppScope
-import chatter.lib.http.HttpRouter
 import chatter.lib.http.RouteContext
+import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.http.status
@@ -32,6 +32,8 @@ class TeamsRouter @Inject constructor(
             get("/teams") { findMany() }
             get("/teams/{teamSlug}") { findById() }
             post("/teams") { create() }
+
+//            post("/teams/{teamSlug}/leave") { create() }
 
             // only team owners can update and delete their teams
             isTeamOwner(authorization, "teamSlug") {

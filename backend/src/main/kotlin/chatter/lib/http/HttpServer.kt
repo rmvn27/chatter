@@ -2,6 +2,8 @@ package chatter.lib.http
 
 import chatter.lib.AppDispatchers
 import chatter.lib.app.AppScope
+import chatter.lib.http.config.HttpApplicationConfig
+import chatter.lib.http.config.HttpRouterConfiguration
 import chatter.lib.log.getValue
 import chatter.lib.service.StatefulService
 import co.touchlab.kermit.Logger

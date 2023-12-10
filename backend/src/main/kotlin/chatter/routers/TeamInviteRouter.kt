@@ -6,8 +6,8 @@ import chatter.http.IsTeamOwnerAuthorizationPlugin
 import chatter.http.isTeamOwner
 import chatter.http.userId
 import chatter.lib.app.AppScope
-import chatter.lib.http.HttpRouter
 import chatter.lib.http.RouteContext
+import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.http.status

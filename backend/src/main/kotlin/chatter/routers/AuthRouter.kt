@@ -1,8 +1,8 @@
 package chatter.routers
 
 import chatter.lib.app.AppScope
-import chatter.lib.http.HttpRouter
 import chatter.lib.http.RouteContext
+import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import chatter.lib.serialization.UUIDSerializer

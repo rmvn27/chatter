@@ -1,4 +1,4 @@
-package chatter.lib.http
+package chatter.lib.http.config
 
 import io.ktor.server.application.*
 import io.ktor.server.routing.*

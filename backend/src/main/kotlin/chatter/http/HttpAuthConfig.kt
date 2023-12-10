@@ -1,7 +1,7 @@
 package chatter.http
 
 import chatter.lib.app.AppScope
-import chatter.lib.http.HttpApplicationConfig
+import chatter.lib.http.config.HttpApplicationConfig
 import chatter.models.UserPrincipal
 import chatter.services.AuthenticationService
 import com.squareup.anvil.annotations.ContributesMultibinding
