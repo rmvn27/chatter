@@ -1,18 +1,22 @@
 package chatter.routers
 
+import arrow.core.raise.Raise
+import chatter.errors.ApplicationError
+import chatter.http.userId
 import chatter.lib.app.AppScope
 import chatter.lib.http.HttpRouter
 import chatter.lib.http.RouteContext
-import chatter.lib.http.respond
-import chatter.lib.http.respondWithError
-import chatter.lib.http.userId
+import chatter.lib.http.getParam
+import chatter.lib.http.handle
+import chatter.lib.http.status
 import chatter.services.TeamService
 import com.squareup.anvil.annotations.ContributesMultibinding
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
@@ -31,31 +35,39 @@ class TeamsRouter @Inject constructor(
     }
 
     private suspend fun RouteContext.findMany() {
-        service.findForUser(call.userId).respond()
+        val teams = service.findForUser(call.userId)
+        call.respond(teams)
     }
 
-    private suspend fun RouteContext.findById() {
-        service.findBySlug(
+    private suspend fun RouteContext.findById() = handle {
+        val team = service.findBySlug(
             userId = call.userId,
             teamSlug = call.teamSlug
-        ).respondWithError()
+        ).bind()
+
+        call.respond(team)
     }
 
     private suspend fun RouteContext.create() {
         val name = call.receive<CreateRequest>().name
-        service.create(name, call.userId).respond()
+        val team = service.create(name, call.userId)
+
+        call.status(HttpStatusCode.Created)
+        call.respond(team)
     }
 
-    private suspend fun RouteContext.update() {
+    private suspend fun RouteContext.update() = handle {
         val body = call.receive<UpdateRequest>()
-        service.update(
+        val newTeam = service.update(
             userId = call.userId,
             teamSlug = call.teamSlug,
             name = body.name
-        ).respondWithError()
+        ).bind()
+
+        call.respond(newTeam)
     }
 
-    private suspend fun RouteContext.delete() {
+    private suspend fun RouteContext.delete() = handle {
         service.delete(call.teamSlug)
     }
 
@@ -69,5 +81,7 @@ class TeamsRouter @Inject constructor(
         val name: String? = null
     )
 
-    private val ApplicationCall.teamSlug get() = parameters.getOrFail("teamSlug")
+    context(Raise<ApplicationError>)
+    private val ApplicationCall.teamSlug
+        get() = getParam("teamSlug")
 }

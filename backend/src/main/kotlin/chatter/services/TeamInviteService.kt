@@ -4,7 +4,7 @@ import arrow.core.raise.either
 import chatter.TeamInviteEntity
 import chatter.db.TeamInviteQueries
 import chatter.db.asList
-import chatter.db.asOptional
+import chatter.db.asOne
 import chatter.db.withDb
 import chatter.errors.TeamInviteNotFoundError
 import chatter.models.TeamInvite
@@ -26,16 +26,18 @@ class TeamInviteService @Inject constructor(
             .map { TeamInvite(it.invite) }
     }
 
+    // a user can claim an invite to join the team
+    //
+    // if this happens we add him to the participants and delete the invite
     suspend fun claim(userId: UUID, teamSlug: String, invite: UUID) = either {
         val team = teamService.findEntity(teamSlug).bind()
-        findOrError(invite).bind()
+        val inviteEntity = findOrError(invite).bind()
 
         participantService.addParticipant(userId, team.id)
 
-        delete(invite)
+        delete(inviteEntity.invite)
     }
 
-    // TODO: Authorization
     suspend fun create(teamSlug: String) = either {
         val team = teamService.findEntity(teamSlug).bind()
         val invite = TeamInvite(UUID.randomUUID())
@@ -56,10 +58,6 @@ class TeamInviteService @Inject constructor(
     }
 
     private suspend fun findOrError(invite: UUID) = either {
-        val entity = queries.findByInvite(invite)
-            .asOptional()
-            ?: raise(TeamInviteNotFoundError(invite))
-
-        entity
+        queries.findByInvite(invite).asOne { TeamInviteNotFoundError(invite) }
     }
 }

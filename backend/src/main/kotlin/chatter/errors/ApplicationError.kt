@@ -8,3 +8,10 @@ import io.ktor.http.*
 // them to http exceptions would be nicer, but with this we save a layer of indirection
 sealed class ApplicationError(val message: String, val status: HttpStatusCode)
 
+sealed class InternalError : ApplicationError(
+    "Can't handle currently the request!",
+    HttpStatusCode.InternalServerError
+)
+
+// this error should not happen - but we could log to see if we made a typo somewhere accidentally
+data class ParameterNotFoundError(val parameter: String) : InternalError()

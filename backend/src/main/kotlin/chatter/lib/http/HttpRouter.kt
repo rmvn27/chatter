@@ -2,7 +2,6 @@ package chatter.lib.http
 
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
 import javax.inject.Inject
 
 // base for all routers for the application.
@@ -14,8 +13,6 @@ interface HttpRouter {
     // use this as a extension method to have all all routing method available implicitly
     fun Routing.routes()
 }
-
-typealias RouteContext = PipelineContext<Unit, ApplicationCall>
 
 class HttpRouterConfiguration @Inject constructor(
     private val routers: Set<@JvmSuppressWildcards HttpRouter>

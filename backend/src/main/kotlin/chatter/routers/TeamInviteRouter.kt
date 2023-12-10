@@ -1,18 +1,22 @@
 package chatter.routers
 
+import arrow.core.raise.Raise
+import chatter.errors.ApplicationError
+import chatter.http.userId
 import chatter.lib.app.AppScope
 import chatter.lib.http.HttpRouter
 import chatter.lib.http.RouteContext
-import chatter.lib.http.respond
-import chatter.lib.http.respondWithError
-import chatter.lib.http.userId
+import chatter.lib.http.getParam
+import chatter.lib.http.handle
+import chatter.lib.http.status
 import chatter.lib.toUUID
 import chatter.services.TeamInviteService
 import com.squareup.anvil.annotations.ContributesMultibinding
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.util.*
 import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
@@ -30,27 +34,36 @@ class TeamInviteRouter @Inject constructor(
         }
     }
 
-    private suspend fun RouteContext.findMany() {
-        service.findMany(call.teamSlug).respond()
+    private suspend fun RouteContext.findMany() = handle {
+        val invites = service.findMany(call.teamSlug).bind()
+
+        call.respond(invites)
     }
 
-    private suspend fun RouteContext.create() {
-        service.create(call.teamSlug).respondWithError()
+    private suspend fun RouteContext.create() = handle {
+        val invite = service.create(call.teamSlug)
+
+        call.status(HttpStatusCode.Created)
+        call.respond(invite)
     }
 
-    private suspend fun RouteContext.claimInvite() {
+    private suspend fun RouteContext.claimInvite() = handle {
         service.claim(
             userId = call.userId,
             teamSlug = call.teamSlug,
             invite = call.invite
-        )
+        ).bind()
     }
 
-    private suspend fun RouteContext.delete() {
+    private suspend fun RouteContext.delete() = handle {
         service.delete(call.invite)
     }
 
-    private val ApplicationCall.teamSlug get() = parameters.getOrFail("teamSlug")
+    context(Raise<ApplicationError>)
+    private val ApplicationCall.teamSlug
+        get() = getParam("teamSlug")
 
-    private val ApplicationCall.invite get() = parameters.getOrFail("invite").toUUID()
+    context(Raise<ApplicationError>)
+    private val ApplicationCall.invite
+        get() = getParam("invite").toUUID()
 }

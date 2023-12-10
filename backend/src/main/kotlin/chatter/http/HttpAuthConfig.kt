@@ -1,6 +1,8 @@
-package chatter.lib.http
+package chatter.http
 
 import chatter.lib.app.AppScope
+import chatter.lib.http.HttpApplicationConfig
+import chatter.models.UserPrincipal
 import chatter.services.AuthService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.server.application.*
@@ -10,7 +12,7 @@ import javax.inject.Inject
 
 // install the jwt authentication that is backed up by the auth service
 @ContributesMultibinding(AppScope::class)
-class HttpAuthConfig @Inject constructor(
+class HttpAuthenticationConfig @Inject constructor(
     private val authService: AuthService
 ) : HttpApplicationConfig {
     override fun Application.configure() {
@@ -19,3 +21,6 @@ class HttpAuthConfig @Inject constructor(
         }
     }
 }
+
+// if we are authenticated we certainly have a `UserPrincipal` and shouldn't get a NPE
+val ApplicationCall.userId get() = principal<UserPrincipal>()!!.userId

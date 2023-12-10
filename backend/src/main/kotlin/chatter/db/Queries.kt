@@ -1,6 +1,7 @@
 package chatter.db
 
 import app.cash.sqldelight.Query
+import arrow.core.raise.Raise
 import chatter.lib.AppDispatchers
 import kotlinx.coroutines.withContext
 
@@ -10,11 +11,12 @@ import kotlinx.coroutines.withContext
 // there is also theoretically a reactive db connector that doesn't need
 // a thread pool, but it doesn't work properly with sqldelight
 
-suspend fun <T : Any> Query<T>.asOne() =
-    withContext(AppDispatchers.db) { executeAsOne() }
-
 suspend fun <T : Any> Query<T>.asOptional() =
     withContext(AppDispatchers.db) { executeAsOneOrNull() }
+
+// if the value was not found raise the provided error
+context(Raise<E>)
+suspend fun <T : Any, E> Query<T>.asOne(error: () -> E) = asOptional() ?: raise(error())
 
 suspend fun <T : Any> Query<T>.asList() =
     withContext(AppDispatchers.db) { executeAsList() }

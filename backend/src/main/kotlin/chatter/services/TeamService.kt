@@ -4,7 +4,7 @@ import arrow.core.raise.either
 import chatter.TeamEntity
 import chatter.db.TeamQueries
 import chatter.db.asList
-import chatter.db.asOptional
+import chatter.db.asOne
 import chatter.db.insert
 import chatter.db.withDb
 import chatter.errors.ProjectNotFoundError
@@ -35,11 +35,7 @@ class TeamService @Inject constructor(
     }
 
     suspend fun findEntity(slug: String) = either {
-        val entity = queries.findBySlug(slug)
-            .asOptional()
-            ?: raise(ProjectNotFoundError(slug))
-
-        entity
+        queries.findBySlug(slug).asOne { ProjectNotFoundError(slug) }
     }
 
     suspend fun create(name: String, userId: UUID): Team {
