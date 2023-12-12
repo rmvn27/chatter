@@ -1,4 +1,9 @@
-import { presetIcons, presetUno, transformerDirectives } from "unocss";
+import {
+  presetIcons,
+  presetUno,
+  toEscapedSelector,
+  transformerDirectives,
+} from "unocss";
 import uno, { type VitePluginConfig } from "unocss/vite";
 import { fileURLToPath } from "url";
 import { defineConfig, type ServerOptions } from "vite";
@@ -18,6 +23,25 @@ const createUnoConfig = (): VitePluginConfig => {
   return {
     transformers: [transformerDirectives()],
     presets: [presetUno(), presetIcons()],
+    rules: [
+      [
+        /hide-scrollbar/,
+        (_, { rawSelector }) => {
+          const selector = toEscapedSelector(rawSelector);
+
+          return `
+            ${selector}::-webkit-scrollbar {
+              display: none;
+            }
+            @-moz-document url-prefix() {
+              ${selector} {
+                scrollbar-width: none;
+              }
+            }
+          `;
+        },
+      ],
+    ],
   };
 };
 

@@ -1,5 +1,6 @@
 package chatter.models
 
+import chatter.TeamChannelEntity
 import chatter.TeamEntity
 import chatter.UserEntity
 import chatter.lib.serialization.UUIDSerializer
@@ -46,4 +47,20 @@ fun UserEntity.toDomain(teamOwner: Boolean) = TeamParticipant(
     username = username,
     teamOwner = teamOwner,
     name = displayName
+)
+
+
+@Serializable
+data class TeamChannel(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val name: String,
+    val slug: String
+)
+
+
+fun TeamChannelEntity.toDomain() = TeamChannel(
+    id = id,
+    name = name,
+    slug = slug
 )

@@ -24,7 +24,7 @@ export const AddTeamModal: Component<Props> = (props) => {
 
   return (
     <Modal opened={props.opened} onClose={() => props.opened.set(false)}>
-      <BaseCard class="flex flex-col w-xl">
+      <BaseCard class="flex flex-col w-xl bg-zinc-800">
         <NewTeamForm onNewTeam={state().createNewTeam} />
 
         <div class="h-0.5 rounded-lg bg-zinc-700" />

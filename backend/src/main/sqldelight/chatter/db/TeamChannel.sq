@@ -1,0 +1,16 @@
+findByTeamId:
+SELECT *
+FROM TeamChannelEntity
+WHERE teamId = :teamId;
+
+findByTeamAndSlug:
+SELECT *
+FROM TeamChannelEntity
+WHERE teamId = :teamId
+AND slug = :slug;
+
+create:
+INSERT INTO TeamChannelEntity(id, teamId, name, slug) VALUES ?;
+
+deleteById:
+DELETE FROM TeamChannelEntity WHERE id = :id;

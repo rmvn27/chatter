@@ -4,6 +4,7 @@ export const navigationRoutes = {
   index: "/",
   team: (teamSlug: string) => ({
     base: `/teams/${teamSlug}`,
+    messages: (channelSlug: string) => `/teams/${teamSlug}/messages/${channelSlug}`,
     settings: `/teams/${teamSlug}/settings`,
   }),
   login: "/auth/login",
@@ -35,6 +36,10 @@ export const appRoutes = createRoute({
             createRoute({
               path: "/settings",
               component: () => import("../routes/TeamSettings"),
+            }),
+            createRoute({
+              path: "/messages/:channelSlug",
+              component: () => import("../routes/Messages"),
             }),
           ],
         }),

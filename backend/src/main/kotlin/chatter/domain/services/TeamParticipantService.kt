@@ -49,7 +49,7 @@ class TeamParticipantService @Inject constructor(
                     addAll(participants.await())
 
                     //this can't happen in sql since we have to add the owner to it
-                    sortBy(TeamParticipant::username)
+                    sortBy(TeamParticipant::name)
                 }
             }
         }

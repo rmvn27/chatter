@@ -8,7 +8,7 @@ type Props = {
 };
 
 export const ParticipantsSidebar: Component<Props> = (props) => {
-  const layoutClasses = "h-full py-3 px-3 flex flex-col w-xs gap-3";
+  const layoutClasses = "h-full py-3 px-3 flex flex-col w-xs gap-2";
   const colorClasses = "border-l-2 border-zinc-300/10";
 
   return (
