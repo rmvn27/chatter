@@ -5,6 +5,14 @@ JOIN TeamParticipantEntity tp
 ON u.id = tp.userId
 WHERE teamId = :teamId;
 
+findParticipantByIdAndTeam:
+SELECT u.*
+FROM UserEntity u
+JOIN TeamParticipantEntity tp
+ON u.id = tp.userId
+WHERE teamId = :teamId
+AND u.id = :userId;
+
 create:
 INSERT INTO TeamParticipantEntity VALUES ?;
 

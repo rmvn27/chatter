@@ -4,8 +4,9 @@ import arrow.core.raise.Raise
 import chatter.domain.services.TeamService
 import chatter.errors.ApplicationError
 import chatter.http.EmptyJson
-import chatter.http.IsTeamOwnerAuthorizationPlugin
+import chatter.http.TeamAuthorizationPlugin
 import chatter.http.isTeamOwner
+import chatter.http.isTeamOwnerOrParticipant
 import chatter.http.userId
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
@@ -28,17 +29,19 @@ import javax.inject.Inject
 @ContributesMultibinding(AppScope::class)
 class TeamsRouter @Inject constructor(
     private val service: TeamService,
-    private val authorization: IsTeamOwnerAuthorizationPlugin
+    private val authorization: TeamAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {
             get("/teams") { findMany() }
-            get("/teams/{teamSlug}") { findById() }
             post("/teams") { create() }
-
-            // a user is always allowed to just leave a team by himself
-            post("/teams/{teamSlug}/leave") { leave() }
             post("/teams/{teamSlug}/join") { join() }
+
+            isTeamOwnerOrParticipant(authorization, "teamSlug") {
+                get("/teams/{teamSlug}") { findById() }
+                // a user is always allowed to just leave a team by himself
+                post("/teams/{teamSlug}/leave") { leave() }
+            }
 
             // only team owners can update and delete their teams
             isTeamOwner(authorization, "teamSlug") {

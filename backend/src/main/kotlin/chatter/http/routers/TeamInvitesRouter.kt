@@ -4,7 +4,7 @@ import arrow.core.raise.Raise
 import chatter.domain.services.TeamInviteService
 import chatter.errors.ApplicationError
 import chatter.http.EmptyJson
-import chatter.http.IsTeamOwnerAuthorizationPlugin
+import chatter.http.TeamAuthorizationPlugin
 import chatter.http.isTeamOwner
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
@@ -24,7 +24,7 @@ import javax.inject.Inject
 @ContributesMultibinding(AppScope::class)
 class TeamInvitesRouter @Inject constructor(
     private val service: TeamInviteService,
-    private val authorization: IsTeamOwnerAuthorizationPlugin
+    private val authorization: TeamAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {

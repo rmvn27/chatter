@@ -4,8 +4,9 @@ import arrow.core.raise.Raise
 import chatter.domain.services.TeamParticipantService
 import chatter.errors.ApplicationError
 import chatter.http.EmptyJson
-import chatter.http.IsTeamOwnerAuthorizationPlugin
+import chatter.http.TeamAuthorizationPlugin
 import chatter.http.isTeamOwner
+import chatter.http.isTeamOwnerOrParticipant
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
@@ -22,11 +23,13 @@ import javax.inject.Inject
 @ContributesMultibinding(AppScope::class)
 class TeamParticipantsRouter @Inject constructor(
     private val service: TeamParticipantService,
-    private val authorization: IsTeamOwnerAuthorizationPlugin
+    private val authorization: TeamAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {
-            get("/teams/{teamSlug}/participants") { findMany() }
+            isTeamOwnerOrParticipant(authorization, "teamSlug") {
+                get("/teams/{teamSlug}/participants") { findMany() }
+            }
 
             // only the teamOwner can directly delete participants
             // the users themselves can leave through the teams router
