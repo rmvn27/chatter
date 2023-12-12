@@ -1,6 +1,8 @@
+import { navigationRoutes } from "@/config/routes";
 import { ToggleSignal, createToggle } from "@/lib/signals/toggle";
 import { Team } from "@/models/teams";
 import { TokenService } from "@/services/tokenService";
+import { Navigator, useNavigate } from "@solidjs/router";
 import { QueryClient, useQueryClient } from "@tanstack/solid-query";
 import { Accessor, createMemo } from "solid-js";
 import { teamsQuery } from "../api/teams";
@@ -10,8 +12,11 @@ export class AppShellState {
   static create = (teamSlug: Accessor<string | undefined>) => {
     const services = useServices();
     const queryClient = useQueryClient();
+    const nav = useNavigate();
 
-    return createMemo(() => new AppShellState(services.token, queryClient, teamSlug));
+    return createMemo(
+      () => new AppShellState(services.token, queryClient, nav, teamSlug),
+    );
   };
 
   private teamsQuery: ReturnType<typeof teamsQuery>;
@@ -20,6 +25,7 @@ export class AppShellState {
   private constructor(
     private tokenService: TokenService,
     private queryClient: QueryClient,
+    private nav: Navigator,
     teamSlug: Accessor<string | undefined>,
   ) {
     this.addTeamModalToggle = createToggle();
@@ -31,6 +37,10 @@ export class AppShellState {
   get teams(): Team[] {
     return this.teamsQuery.data ?? [];
   }
+
+  navToSettings = () => {
+    this.nav(navigationRoutes.settings);
+  };
 
   logout = async () => {
     await this.tokenService.logOut();

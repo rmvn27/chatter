@@ -5,6 +5,7 @@ export const apiPaths = {
     logout: "/auth/logout",
     tokens: "/auth/tokens",
   },
+  user: "/user",
   teams: {
     base: "/teams",
     bySlug: (slug: string) => ({

@@ -36,6 +36,7 @@ value class TeamInvite(
 data class TeamParticipant(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val name: String,
     val username: String,
     val teamOwner: Boolean
 )
@@ -43,5 +44,6 @@ data class TeamParticipant(
 fun UserEntity.toDomain(teamOwner: Boolean) = TeamParticipant(
     id = id,
     username = username,
-    teamOwner = teamOwner
+    teamOwner = teamOwner,
+    name = displayName
 )

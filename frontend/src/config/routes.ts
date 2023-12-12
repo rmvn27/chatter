@@ -8,6 +8,7 @@ export const navigationRoutes = {
   }),
   login: "/auth/login",
   register: "/auth/register",
+  settings: "/settings",
 };
 
 export const appRoutes = createRoute({
@@ -20,6 +21,11 @@ export const appRoutes = createRoute({
       children: [
         // create a empty route so we actually render '/'
         createRoute({ path: "/" }),
+        // settings
+        createRoute({
+          path: "/settings",
+          component: () => import("../routes/Settings"),
+        }),
         // team
         createRoute({
           path: "/teams/:teamSlug",

@@ -1,6 +1,9 @@
 package chatter.lib.cache
 
 import chatter.lib.serialization.JsonParsers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -39,6 +42,12 @@ abstract class JsonKVCache<V>(private val redis: RedisService) {
 
     suspend fun delete(key: String) {
         redis.commands.del(buildKey(key)).await()
+    }
+
+    suspend fun deleteAll() = coroutineScope {
+        val keys = redis.commands.keys("$prefix:*").await()
+
+        keys.map { async { redis.commands.del(it).await() } }.awaitAll()
     }
 
     private fun buildKey(key: String) = "$prefix:$key"

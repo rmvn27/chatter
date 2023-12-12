@@ -29,4 +29,9 @@ export const mutationKeys = {
     create: ["invites", "create"],
     delete: ["invites", "delete"],
   },
+  user: {
+    updatePassword: ["user", "updatePassword"],
+    updateGeneral: ["user", "updateGeneral"],
+    delete: ["user", "delete"],
+  },
 };
