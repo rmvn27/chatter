@@ -1,13 +1,19 @@
 package chatter.lib.http.config
 
 import chatter.lib.app.AppScope
+import chatter.lib.http.status
 import chatter.lib.serialization.JsonParsers
+import co.touchlab.kermit.Logger
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 // base config for the `HttpServer`
 //
@@ -15,6 +21,8 @@ import io.ktor.server.plugins.cors.routing.*
 // - configure cors
 @ContributesMultibinding(AppScope::class)
 object HttpBaseApplicationConfig : HttpApplicationConfig {
+    private val logger = Logger.withTag("HttpServer")
+
     override fun Application.configure() {
         install(ContentNegotiation) { json(JsonParsers.strict) }
 
@@ -30,6 +38,21 @@ object HttpBaseApplicationConfig : HttpApplicationConfig {
             // additional headers
             allowHeader(HttpHeaders.ContentType)
             allowHeader(HttpHeaders.Authorization)
+        }
+
+        install(StatusPages) {
+            exception<Throwable> { call, cause ->
+                logger.e(cause) { "Encountered error during the request" }
+
+                call.status(HttpStatusCode.InternalServerError)
+                call.respond(buildJsonObject { put("message", "Couldn't handle the request!") })
+            }
+
+            // add a proper json body, the frontend expects it
+            status(HttpStatusCode.Unauthorized) { call, status ->
+                call.status(status)
+                call.respond(buildJsonObject { put("message", "User is not authorized!") })
+            }
         }
     }
 }

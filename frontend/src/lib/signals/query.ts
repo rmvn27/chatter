@@ -58,7 +58,7 @@ export const withOnSuccess = <Output>(
   action: (data: Output) => MaybePromise<void>,
 ): ((data: Output) => MaybePromise<void>) => {
   return async (data) => {
-    await action(data);
     await onSuccess?.(data);
+    await action(data);
   };
 };

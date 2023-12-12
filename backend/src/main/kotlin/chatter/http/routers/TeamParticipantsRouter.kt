@@ -1,7 +1,9 @@
 package chatter.http.routers
 
 import arrow.core.raise.Raise
+import chatter.domain.services.TeamParticipantService
 import chatter.errors.ApplicationError
+import chatter.http.EmptyJson
 import chatter.http.IsTeamOwnerAuthorizationPlugin
 import chatter.http.isTeamOwner
 import chatter.lib.app.AppScope
@@ -10,7 +12,6 @@ import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.toUUID
-import chatter.domain.services.TeamParticipantService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -46,6 +47,7 @@ class TeamParticipantsRouter @Inject constructor(
             teamSlug = call.teamSlug,
             userId = call.participantId
         ).bind()
+        call.respond(EmptyJson)
     }
 
     context(Raise<ApplicationError>)

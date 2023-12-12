@@ -2,7 +2,9 @@ package chatter.domain.services
 
 import arrow.core.raise.either
 import chatter.domain.stores.TeamStore
+import chatter.lib.log.getValue
 import chatter.models.toDomain
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.util.UUID
@@ -13,6 +15,8 @@ class TeamService @Inject constructor(
     private val participantService: TeamParticipantService,
     private val inviteService: TeamInviteService
 ) {
+    private val logger by Logger
+
     suspend fun findForUser(userId: UUID) = coroutineScope {
         // run both queries in parallel
         val ownTeams = async {
@@ -24,7 +28,7 @@ class TeamService @Inject constructor(
                 .map { it.toDomain(false) }
         }
 
-        ownTeams.await() + sharedTeams.await()
+        (ownTeams.await() + sharedTeams.await()).sortedBy { it.name }
     }
 
     suspend fun findBySlug(teamSlug: String, userId: UUID) = either {
@@ -50,7 +54,9 @@ class TeamService @Inject constructor(
     suspend fun create(
         name: String,
         userId: UUID
-    ) = store.create(name, userId).toDomain(true)
+    ) = store.create(name, userId)
+        .toDomain(true)
+        .also { logger.d { "Created Team: ${it.slug}" } }
 
     suspend fun update(userId: UUID, teamSlug: String, name: String?) = either {
         store.update(teamSlug = teamSlug, name = name)

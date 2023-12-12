@@ -18,7 +18,8 @@ ktorServer = [
   "ktorContentJson",
   "ktorAuth",
   "ktorAuthJwt",
-  "ktorCors"
+  "ktorCors",
+  "ktorStatus"
 ]
 
 sql = ["sqldelightServerDriver", "sqldelightCoroutines", "hikari", "postgres"]
@@ -50,6 +51,7 @@ ktorAuth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktorAuthJwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
 
 ktorCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
+ktorStatus = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 
 ######
 # DB #

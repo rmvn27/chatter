@@ -1,7 +1,9 @@
 package chatter.http.routers
 
 import arrow.core.raise.Raise
+import chatter.domain.services.TeamInviteService
 import chatter.errors.ApplicationError
+import chatter.http.EmptyJson
 import chatter.http.IsTeamOwnerAuthorizationPlugin
 import chatter.http.isTeamOwner
 import chatter.lib.app.AppScope
@@ -11,7 +13,6 @@ import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import chatter.lib.toUUID
-import chatter.domain.services.TeamInviteService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -44,7 +45,7 @@ class TeamInvitesRouter @Inject constructor(
     }
 
     private suspend fun RouteContext.create() = handle {
-        val invite = service.create(call.teamSlug)
+        val invite = service.create(call.teamSlug).bind()
 
         call.status(HttpStatusCode.Created)
         call.respond(invite)
@@ -52,6 +53,7 @@ class TeamInvitesRouter @Inject constructor(
 
     private suspend fun RouteContext.delete() = handle {
         service.delete(call.invite)
+        call.respond(EmptyJson)
     }
 
     context(Raise<ApplicationError>)

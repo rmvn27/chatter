@@ -42,20 +42,18 @@ class TeamStore @Inject constructor(
 
         // only update if name has changed
         if (name != null && name != existingEntity.name) {
-            val newSlug = Slug.slugify(name)
-
             withDb {
+                // while probably not the best solution
+                // we don't update the slug to keep it stable
+                // even though it may not reflect the new name
                 queries.update(
                     id = existingEntity.id,
                     name = name,
-                    slug = newSlug
+                    slug = existingEntity.slug
                 )
             }
 
-            existingEntity.copy(
-                name = name,
-                slug = newSlug
-            )
+            existingEntity.copy(name = name)
         } else {
             existingEntity
         }

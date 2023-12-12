@@ -5,4 +5,20 @@ export const apiPaths = {
     logout: "/auth/logout",
     tokens: "/auth/tokens",
   },
+  teams: {
+    base: "/teams",
+    bySlug: (slug: string) => ({
+      details: `/teams/${slug}`,
+      join: `/teams/${slug}/join`,
+      leave: `/teams/${slug}/leave`,
+      participants: {
+        base: `/teams/${slug}/participants`,
+        withId: (id: string) => `/teams/${slug}/participants/${id}`,
+      },
+      invites: {
+        base: `/teams/${slug}/invites`,
+        withId: (id: string) => `/teams/${slug}/invites/${id}`,
+      },
+    }),
+  },
 };
