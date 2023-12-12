@@ -1,12 +1,13 @@
 package chatter.http.routers
 
+import chatter.domain.services.auth.AuthenticationService
+import chatter.http.EmptyJson
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import chatter.lib.serialization.UUIDSerializer
-import chatter.domain.services.auth.AuthenticationService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -63,6 +64,7 @@ class AuthRouter @Inject constructor(
         val request = call.receive<LogoutRequest>()
 
         authService.logout(request.refreshToken)
+        call.respond(EmptyJson)
     }
 
     @Serializable

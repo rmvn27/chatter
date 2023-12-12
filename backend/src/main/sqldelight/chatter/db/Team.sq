@@ -5,7 +5,7 @@ findSharedForUser:
 SELECT team.*
 FROM TeamEntity team
 JOIN TeamParticipantEntity tp
-WHERE team.id = tp.teamId
+ON team.id = tp.teamId
 AND tp.userId = :userId;
 
 findBySlug:

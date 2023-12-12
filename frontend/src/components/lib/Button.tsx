@@ -56,10 +56,14 @@ export const TextButton: Component<TextButtonProps> = (props) => {
 type IconButtonProps = {
   icon: string;
   onClick?: () => void;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "xs";
 };
 
 const iconButtonSizeMap = {
+  xs: {
+    button: "p-1 w-6 h-6",
+    icon: "w-4 h-4",
+  },
   sm: {
     button: "p-1 w-8.5 h-8.5",
     icon: "w-6.25 h-6.25",
@@ -105,7 +109,7 @@ export const NavIconButton = (props: NavIconButtonProps) => {
   );
 };
 
-export const iconButtonClasses = (size: "sm" | "md", hasClick: boolean) => {
+export const iconButtonClasses = (size: "sm" | "md" | "xs", hasClick: boolean) => {
   const { icon: iconBase, button: buttonBase } = iconButtonSizeMap[size];
   const hover = hasClick ? "hover:bg-zinc-50/15" : "";
 

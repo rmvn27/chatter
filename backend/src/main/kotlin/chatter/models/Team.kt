@@ -1,6 +1,7 @@
 package chatter.models
 
 import chatter.TeamEntity
+import chatter.UserEntity
 import chatter.lib.serialization.UUIDSerializer
 import kotlinx.serialization.Serializable
 import java.util.UUID
@@ -29,4 +30,18 @@ fun TeamEntity.toDomain(isOwner: Boolean) = Team(
 value class TeamInvite(
     @Serializable(with = UUIDSerializer::class)
     val invite: UUID
+)
+
+@Serializable
+data class TeamParticipant(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val username: String,
+    val teamOwner: Boolean
+)
+
+fun UserEntity.toDomain(teamOwner: Boolean) = TeamParticipant(
+    id = id,
+    username = username,
+    teamOwner = teamOwner
 )

@@ -1,7 +1,9 @@
 package chatter.http.routers
 
 import arrow.core.raise.Raise
+import chatter.domain.services.TeamService
 import chatter.errors.ApplicationError
+import chatter.http.EmptyJson
 import chatter.http.IsTeamOwnerAuthorizationPlugin
 import chatter.http.isTeamOwner
 import chatter.http.userId
@@ -12,7 +14,6 @@ import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import chatter.lib.serialization.UUIDSerializer
-import chatter.domain.services.TeamService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -69,6 +70,7 @@ class TeamsRouter @Inject constructor(
             invite = invite,
             userId = call.userId
         ).bind()
+        call.respond(EmptyJson)
     }
 
     private suspend fun RouteContext.leave() = handle {
@@ -76,6 +78,7 @@ class TeamsRouter @Inject constructor(
             slug = call.teamSlug,
             userId = call.userId
         ).bind()
+        call.respond(EmptyJson)
     }
 
     private suspend fun RouteContext.create() {
@@ -99,6 +102,7 @@ class TeamsRouter @Inject constructor(
 
     private suspend fun RouteContext.delete() = handle {
         service.delete(call.teamSlug)
+        call.respond(EmptyJson)
     }
 
     @Serializable

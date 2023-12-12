@@ -75,22 +75,10 @@ const fetchJson = async <Schema extends z.ZodTypeAny>(
 };
 
 const fetchNewTokens = (refreshToken: string) =>
-  baseFetchJson(
-    apiPaths.auth.tokens,
-    authTokens,
-    "POST",
-    { refresh_token: refreshToken },
-    undefined,
-  );
+  baseFetchJson(apiPaths.auth.tokens, authTokens, "POST", { refreshToken }, undefined);
 
 export const logOutCall = (refreshToken: string) =>
-  baseFetchJson(
-    apiPaths.auth.logout,
-    z.unknown(),
-    "POST",
-    { refresh_token: refreshToken },
-    undefined,
-  );
+  baseFetchJson(apiPaths.auth.logout, z.unknown(), "POST", { refreshToken }, undefined);
 
 // Simple fetch wrapper that adds an token when supplied
 // and parses the zod schema

@@ -3,6 +3,11 @@ SELECT *
 FROM UserEntity
 WHERE username = :username;
 
+findById:
+SELECT *
+FROM UserEntity
+WHERE id = :id;
+
 insert:
 INSERT INTO UserEntity(id, username, password)
 VALUES ?;

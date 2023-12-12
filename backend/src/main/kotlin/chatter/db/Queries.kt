@@ -18,6 +18,9 @@ suspend fun <T : Any> Query<T>.asOptional() =
 context(Raise<E>)
 suspend fun <T : Any, E> Query<T>.asOne(error: () -> E) = asOptional() ?: raise(error())
 
+// only use when it is certain that the query will result in a value
+suspend fun <T : Any> Query<T>.asOneInfallible() = withContext(AppDispatchers.db) { executeAsOne() }
+
 suspend fun <T : Any> Query<T>.asList() =
     withContext(AppDispatchers.db) { executeAsList() }
 

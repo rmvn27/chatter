@@ -1,9 +1,9 @@
 findByTeamId:
-SELECT user.*
-FROM UserEntity user
+SELECT u.*
+FROM UserEntity u
 JOIN TeamParticipantEntity tp
-WHERE user.id = tp.userId
-AND teamId = :teamId;
+ON u.id = tp.userId
+WHERE teamId = :teamId;
 
 create:
 INSERT INTO TeamParticipantEntity VALUES ?;
