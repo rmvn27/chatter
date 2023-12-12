@@ -7,7 +7,7 @@ type Props = {
 };
 
 export const TeamSidebarLayout: Component<Props> = (props) => {
-  const layoutClasses = "h-full py-3 px-3 flex flex-col w-xs";
+  const layoutClasses = "h-full py-3 px-3 flex flex-col gap-2 w-xs";
   const colorClasses = "border-r-2 border-zinc-300/10";
 
   return (

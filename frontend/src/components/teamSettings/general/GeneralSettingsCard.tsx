@@ -1,9 +1,9 @@
 import { GeneralTeamSettingsState } from "@/signals/teamSettings/generalSettingsState";
 import { Form } from "@modular-forms/solid";
 import type { Component } from "solid-js";
-import { TextField } from "../form/TextField";
-import { Card } from "../layout/Card";
-import { TextButton } from "../lib/Button";
+import { TextField } from "../../form/TextField";
+import { Card } from "../../layout/Card";
+import { TextButton } from "../../lib/Button";
 import { DeleteTeamModal } from "./DeleteTeamModal";
 
 type Props = {

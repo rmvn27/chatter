@@ -6,12 +6,14 @@ import { z } from "zod";
 export const routeData = {
   params: z.object({
     teamSlug: z.string(),
+    channelSlug: z.string().optional(),
   }),
 } satisfies RouteData;
 
 export const Route: RouteComponent<typeof routeData> = (props) => {
   const teamSlug = () => props.params.teamSlug;
-  const state = TeamState.create(teamSlug);
+  const channelSlug = () => props.params.channelSlug;
+  const state = TeamState.create(teamSlug, channelSlug);
 
   return <TeamShell state={state()} />;
 };

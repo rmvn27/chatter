@@ -1,5 +1,6 @@
 import { TeamState } from "@/signals/team/teamState";
 import { Component } from "solid-js";
+import { TeamSidebarChannels } from "./TeamSidebarChannels";
 import { TeamSidebarControls } from "./TeamSidebarControls";
 import { TeamSidebarHeading } from "./TeamSidebarHeading";
 import { TeamSidebarLayout } from "./TeamSidebarLayout";
@@ -10,7 +11,7 @@ type Props = {
 
 export const TeamOverviewSidebar: Component<Props> = (props) => {
   const heading = <TeamSidebarHeading team={props.state.team} />;
-  const channels = <></>;
+  const channels = <TeamSidebarChannels state={props.state} />;
   const controls = (
     <TeamSidebarControls
       team={props.state.team}

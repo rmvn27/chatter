@@ -1,0 +1,24 @@
+------------------
+-- add channels --
+------------------
+
+CREATE TABLE TeamChannelEntity(
+  id UUID,
+  teamId UUID NOT NULL
+              REFERENCES TeamEntity(id)
+              ON DELETE CASCADE,
+
+  name VARCHAR NOT NULL,
+  slug VARCHAR NOT NULL,
+
+  UNIQUE(slug, teamId),
+  PRIMARY KEY (id)
+);
+
+CREATE INDEX TeamChannelEntityTeamIdIndex ON TeamChannelEntity(teamId);
+
+-- error from v2_teams migration. Index was created on the userId and not teamId
+DROP INDEX TeamParticipantEntityTeamIdIndex;
+CREATE INDEX TeamParticipantEntityTeamIdIndex ON TeamParticipantEntity(teamId);
+
+

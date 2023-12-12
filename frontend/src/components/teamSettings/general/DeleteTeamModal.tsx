@@ -1,8 +1,8 @@
 import { ToggleSignal } from "@/lib/signals/toggle";
 import type { Component } from "solid-js";
-import { Card } from "../layout/Card";
-import { TextButton } from "../lib/Button";
-import { Modal } from "../lib/Modal";
+import { Card } from "../../layout/Card";
+import { TextButton } from "../../lib/Button";
+import { Modal } from "../../lib/Modal";
 
 type Props = {
   toggle: ToggleSignal;

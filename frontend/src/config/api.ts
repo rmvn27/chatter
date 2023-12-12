@@ -20,6 +20,10 @@ export const apiPaths = {
         base: `/teams/${slug}/invites`,
         withId: (id: string) => `/teams/${slug}/invites/${id}`,
       },
+      channels: {
+        base: `/teams/${slug}/channels`,
+        withSlug: (channelSlug: string) => `/teams/${slug}/channels/${channelSlug}`,
+      },
     }),
   },
 };

@@ -1,5 +1,5 @@
+import { AddTeamModal } from "@/components/app/AddTeamModal";
 import { AppShell } from "@/components/app/AppShell";
-import { AddTeamModal } from "@/components/app/addTeamModal/AddTeamModal";
 import type { RouteComponent, RouteData } from "@/lib/route.types";
 import { AppShellState } from "@/signals/app/appShellState";
 import { createAuthGuard } from "@/signals/auth/authGuard";

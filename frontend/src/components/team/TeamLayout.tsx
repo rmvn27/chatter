@@ -10,7 +10,7 @@ export const TeamLayout: Component<Props> = (props) => {
   return (
     <div class="flex flex-row h-full w-full">
       {props.sidebar}
-      <div class="flex-1 w-full">
+      <div class="flex-1 h-full w-full">
         <Outlet />
       </div>
       {props.participants}

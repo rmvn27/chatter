@@ -22,4 +22,7 @@ object DatabaseModule {
 
     @Provides
     fun provideTeamParticipantQueries(db: DatabaseService) = db.queries.teamParticipantQueries
+
+    @Provides
+    fun provideTeamChannelQueries(db: DatabaseService) = db.queries.teamChannelQueries
 }

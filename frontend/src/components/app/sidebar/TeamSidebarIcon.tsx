@@ -26,7 +26,7 @@ export const TeamSidebarIcon: Component<Props> = (props) => {
     const base = "transition border";
 
     if (props.selected) {
-      return `${base} border-none bg-sky-400/50`;
+      return `${base} border-sky-400/10 bg-sky-400/50`;
     } else {
       return `${base} border-zinc-300/15 hover:bg-zinc-50/15`;
     }

@@ -5,6 +5,7 @@ export const queryKeys = {
       base: () => ["teams", slug],
       participants: () => ["teams", slug, "participants"],
       invites: () => ["teams", slug, "invites"],
+      channels: () => ["teams", slug, "channels"],
     }),
   },
 };
@@ -33,5 +34,10 @@ export const mutationKeys = {
     updatePassword: ["user", "updatePassword"],
     updateGeneral: ["user", "updateGeneral"],
     delete: ["user", "delete"],
+  },
+  channels: {
+    create: ["channels", "create"],
+    update: ["channels", "update"],
+    delete: ["channels", "delete"],
   },
 };
