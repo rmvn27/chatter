@@ -9,6 +9,8 @@ import chatter.db.asList
 import chatter.db.asOneInfallible
 import chatter.db.insert
 import chatter.db.withDb
+import chatter.domain.caches.AuthorizationCache
+import chatter.domain.caches.ParticipantsCache
 import chatter.domain.stores.TeamStore
 import chatter.models.TeamParticipant
 import chatter.models.toDomain
@@ -20,36 +22,44 @@ import javax.inject.Inject
 class TeamParticipantService @Inject constructor(
     private val queries: TeamParticipantQueries,
     private val teamStore: TeamStore,
-    private val userQueries: UserQueries
+    private val userQueries: UserQueries,
+    private val authCache: AuthorizationCache,
+    private val cache: ParticipantsCache
 ) {
     suspend fun findMany(teamSlug: String) = either {
-        val team = teamStore.findBySlug(teamSlug).bind()
+        cache.getOrPut(teamSlug) {
+            val team = teamStore.findBySlug(teamSlug).bind()
 
-        coroutineScope {
-            val participants = async {
-                queries.findByTeamId(team.id)
-                    .asList()
-                    .map { it.toDomain(false) }
-            }
+            coroutineScope {
+                val participants = async {
+                    queries.findByTeamId(team.id)
+                        .asList()
+                        .map { it.toDomain(false) }
+                }
 
-            val owner = async {
-                userQueries.findById(team.ownerId)
-                    .asOneInfallible()
-                    .toDomain(true)
-            }
+                val owner = async {
+                    userQueries.findById(team.ownerId)
+                        .asOneInfallible()
+                        .toDomain(true)
+                }
 
 
-            buildList {
-                add(owner.await())
-                addAll(participants.await())
+                buildList {
+                    add(owner.await())
+                    addAll(participants.await())
 
-                //this can't happen in sql since we have to add the owner to it
-                sortBy(TeamParticipant::username)
+                    //this can't happen in sql since we have to add the owner to it
+                    sortBy(TeamParticipant::username)
+                }
             }
         }
     }
 
     suspend fun add(team: TeamEntity, userId: UUID): TeamParticipantEntity {
+        // since we construct the cached list dynamically
+        // its just easier to delete the whole entry
+        cache.delete(team.slug)
+
         return TeamParticipantEntity(
             teamId = team.id,
             userId = userId
@@ -62,7 +72,9 @@ class TeamParticipantService @Inject constructor(
         delete(team, userId)
     }
 
-    suspend fun delete(team: TeamEntity, userId: UUID) = withDb {
-        queries.delete(userId = userId, teamId = team.id)
+    suspend fun delete(team: TeamEntity, userId: UUID) {
+        withDb { queries.delete(userId = userId, teamId = team.id) }
+        authCache.removeParticipant(team.slug, userId)
+        cache.delete(team.slug)
     }
 }

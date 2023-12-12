@@ -51,4 +51,5 @@ dependencies {
     kapt(libs.daggerCompiler)
 
     implementation(libs.slugify)
+    implementation(libs.redis)
 }
