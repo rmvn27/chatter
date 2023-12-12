@@ -9,8 +9,8 @@ import chatter.lib.service.StatefulService
 import co.touchlab.kermit.Logger
 import com.squareup.anvil.annotations.ContributesMultibinding
 import com.squareup.anvil.annotations.optional.SingleIn
-import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
@@ -32,7 +32,7 @@ class HttpServer @Inject constructor(
         // but in a real world scenario be switched out with
         // something like `Netty`
         server = embeddedServer(
-            CIO,
+            Netty,
             host = config.host,
             port = config.port
         ) {

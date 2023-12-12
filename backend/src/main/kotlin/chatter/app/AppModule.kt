@@ -18,4 +18,7 @@ object AppModule {
 
     @Provides
     fun provideHttpConfig(config: ApplicationConfig) = config.http
+
+    @Provides
+    fun provideRedisConfig(config: ApplicationConfig) = config.redis
 }

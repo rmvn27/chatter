@@ -6,12 +6,10 @@ ON u.id = tp.userId
 WHERE teamId = :teamId;
 
 findParticipantByIdAndTeam:
-SELECT u.*
-FROM UserEntity u
-JOIN TeamParticipantEntity tp
-ON u.id = tp.userId
+SELECT *
+FROM TeamParticipantEntity
 WHERE teamId = :teamId
-AND u.id = :userId;
+AND userId = :userId;
 
 create:
 INSERT INTO TeamParticipantEntity VALUES ?;

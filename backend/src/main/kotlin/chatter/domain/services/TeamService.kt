@@ -1,6 +1,7 @@
 package chatter.domain.services
 
 import arrow.core.raise.either
+import chatter.domain.caches.AuthorizationCache
 import chatter.domain.stores.TeamStore
 import chatter.lib.log.getValue
 import chatter.models.toDomain
@@ -13,10 +14,14 @@ import javax.inject.Inject
 class TeamService @Inject constructor(
     private val store: TeamStore,
     private val participantService: TeamParticipantService,
-    private val inviteService: TeamInviteService
+    private val inviteService: TeamInviteService,
+    private val cache: AuthorizationCache
 ) {
     private val logger by Logger
 
+    // hard to cache since we have also here shared teams
+    // and when we cache a list of teams we can't know if a share
+    // one got updated for a user. So keep it as it is for now
     suspend fun findForUser(userId: UUID) = coroutineScope {
         // run both queries in parallel
         val ownTeams = async {
@@ -64,5 +69,8 @@ class TeamService @Inject constructor(
             .toDomain(userId)
     }
 
-    suspend fun delete(slug: String) = store.deleteBySlug(slug)
+    suspend fun delete(slug: String) {
+        store.deleteBySlug(slug)
+        cache.deleteTeam(slug)
+    }
 }

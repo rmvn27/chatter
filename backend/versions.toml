@@ -13,7 +13,7 @@ dagger = "2.49"
 kotlinx = ["kotlinxSerialization", "kotlinxCoroutines"]
 ktorServer = [
   "ktorServer",
-  "ktorServerCio",
+  "ktorServerNetty",
   "ktorContentNegotiation",
   "ktorContentJson",
   "ktorAuth",
@@ -42,7 +42,8 @@ kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android
 ########
 
 ktorServer = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
-ktorServerCio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+# since lettuce also uses netty we just add it here too
+ktorServerNetty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 
 ktorContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktorContentJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
@@ -67,6 +68,8 @@ postgres = { module = "org.postgresql:postgresql", version = "42.6.0" }
 ########
 # MISC #
 ########
+
+redis = { module = "io.lettuce:lettuce-core", version = "6.3.0.RELEASE" }
 
 arrowCore = { module = "io.arrow-kt:arrow-core", version = "1.2.0" }
 arrowCoroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version = "1.2.0" }
