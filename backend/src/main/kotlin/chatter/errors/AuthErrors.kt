@@ -13,3 +13,8 @@ data object UserIsNotTeamOwnerError : ApplicationError(
     "This action cannot be performed by the logged in user",
     HttpStatusCode.Forbidden
 )
+
+data object UserHasNoAccessToTeamError : ApplicationError(
+    "This action cannot be performed by the logged in user",
+    HttpStatusCode.Forbidden
+)
