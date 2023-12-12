@@ -21,7 +21,7 @@ export const TeamParticipantEntry: Component<Props> = (props) => {
   return (
     <div class="px-2 py-1 rounded-lg flex flex-row items-center justify-between border border-zinc-300/10">
       <span class={`text-md font-medium ${participantColor()}`}>
-        {props.participant.username}
+        {props.participant.name}
       </span>
 
       <Show when={canDelete()}>

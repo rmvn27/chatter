@@ -9,5 +9,15 @@ FROM UserEntity
 WHERE id = :id;
 
 insert:
-INSERT INTO UserEntity(id, username, password)
+INSERT INTO UserEntity(id, username, password, displayName)
 VALUES ?;
+
+update:
+UPDATE UserEntity
+SET
+  password = :password,
+  displayName = :displayName
+WHERE id = :id;
+
+delete:
+DELETE FROM UserEntity WHERE id = :id;

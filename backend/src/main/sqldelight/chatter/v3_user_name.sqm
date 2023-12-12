@@ -1,0 +1,16 @@
+--------------------------------
+-- add display name for users --
+----------------------------------
+
+-- currently sqldelight has the problem that alter column statements
+-- are not properly recognised and this fix existing is a possible snapshot version
+--
+-- because of this its currently not possible to just a nullable column
+-- add the new data and then to set it as not null
+--
+-- since this is not a real project we just delete the old data
+DELETE FROM UserEntity;
+
+-- add the new column
+ALTER TABLE UserEntity
+ADD COLUMN displayName VARCHAR NOT NULL;

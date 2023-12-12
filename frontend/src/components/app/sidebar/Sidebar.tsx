@@ -21,6 +21,11 @@ export const Sidebar: Component<Props> = (props) => {
         icon="i-lucide-plus"
         onClick={props.shell.addTeamModalToggle.toggle}
       />
+      <IconButton
+        size="md"
+        icon="i-lucide-settings"
+        onClick={props.shell.navToSettings}
+      />
       <IconButton size="md" icon="i-lucide-log-out" onClick={props.shell.logout} />
     </>
   );

@@ -18,6 +18,7 @@ export type TeamParticipant = z.infer<typeof teamParticipant>;
 export const teamParticipant = z.object({
   id: z.string(),
   username: z.string(),
+  name: z.string(),
 
   teamOwner: z.boolean(),
 });
