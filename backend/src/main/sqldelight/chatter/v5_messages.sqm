@@ -1,0 +1,28 @@
+---------------------------
+-- persist chat messages --
+---------------------------
+
+CREATE TABLE TeamChannelMessageEntity(
+  id UUID,
+  channelId UUID NOT NULL
+                 REFERENCES TeamChannelEntity(id)
+                 ON DELETE CASCADE,
+
+  -- persist messages even when the user gets deleted
+  userId UUID REFERENCES UserEntity(id)
+              ON DELETE SET NULL,
+
+  -- in the future there could be multiple message types
+  -- that are then encoded in the `content`
+  -- images or attachments could possibly link to an object storage
+  -- and content has the location of it
+  type VARCHAR NOT NULL,
+  content VARCHAR NOT NULL,
+
+  timestamp BIGINT NOT NULL,
+
+  PRIMARY KEY(id)
+);
+
+-- for better lookups create an index on the channel of the message and it's timestamp
+CREATE INDEX TeamChannelMessageEntityChannelAndTimestampIndex ON TeamChannelMessageEntity (channelId, timestamp DESC);

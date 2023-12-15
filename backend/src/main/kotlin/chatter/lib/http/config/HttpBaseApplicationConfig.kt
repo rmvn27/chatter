@@ -6,12 +6,14 @@ import chatter.lib.serialization.JsonParsers
 import co.touchlab.kermit.Logger
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
+import io.ktor.server.websocket.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -25,6 +27,10 @@ object HttpBaseApplicationConfig : HttpApplicationConfig {
 
     override fun Application.configure() {
         install(ContentNegotiation) { json(JsonParsers.strict) }
+        install(WebSockets) {
+            // allow for handling json liveMessages
+            contentConverter = KotlinxWebsocketSerializationConverter(JsonParsers.strict)
+        }
 
         // for now just allow everything
         install(CORS) {

@@ -33,6 +33,18 @@ class TeamChannelService @Inject constructor(
         }
     }
 
+    suspend fun findChannelByTeamIdAndSlug(teamId: UUID, channelSlug: String) = either {
+        queries.findByTeamAndSlug(teamId, channelSlug).asOne {
+            ChannelNotFoundError(channelSlug)
+        }
+    }
+
+    suspend fun findChannelBySlug(teamSlug: String, channelSlug: String) = either {
+        val team = teamStore.findBySlug(teamSlug).bind()
+
+        findChannelByTeamIdAndSlug(team.id, channelSlug).bind()
+    }
+
     suspend fun create(teamSlug: String, name: String) = either {
         val team = teamStore.findBySlug(teamSlug).bind()
 
@@ -52,13 +64,5 @@ class TeamChannelService @Inject constructor(
 
         withDb { queries.deleteById(channel.id) }
         cache.delete(teamSlug)
-    }
-
-    private suspend fun findChannelBySlug(teamSlug: String, channelSlug: String) = either {
-        val team = teamStore.findBySlug(teamSlug).bind()
-
-        queries.findByTeamAndSlug(team.id, channelSlug).asOne {
-            ChannelNotFoundError(channelSlug)
-        }
     }
 }

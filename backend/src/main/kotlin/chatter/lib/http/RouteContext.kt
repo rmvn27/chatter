@@ -4,6 +4,7 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import chatter.errors.ApplicationError
 import chatter.errors.ParameterNotFoundError
+import chatter.errors.QueryParameterNotFoundError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -42,3 +43,12 @@ fun ApplicationCall.status(statusCode: HttpStatusCode) = response.status(statusC
 // and then we want to return a internal error
 context(Raise<ApplicationError>)
 fun ApplicationCall.getParam(name: String) = parameters[name] ?: raise(ParameterNotFoundError(name))
+
+// get the parameter out of the request route
+// this should usually not fail but there is chance we made a type
+// and then we want to return a internal error
+context(Raise<ApplicationError>)
+fun ApplicationCall.getQueryParam(name: String) =
+    request.queryParameters[name] ?: raise(QueryParameterNotFoundError(name))
+
+fun ApplicationCall.getQueryParamNullable(name: String) = request.queryParameters[name]

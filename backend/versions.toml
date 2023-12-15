@@ -19,7 +19,8 @@ ktorServer = [
   "ktorAuth",
   "ktorAuthJwt",
   "ktorCors",
-  "ktorStatus"
+  "ktorStatus",
+  "ktorWebsocket"
 ]
 
 sql = ["sqldelightServerDriver", "sqldelightCoroutines", "hikari", "postgres"]
@@ -51,6 +52,7 @@ ktorContentJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.
 ktorAuth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktorAuthJwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
 
+ktorWebsocket = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktorCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktorStatus = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 
@@ -70,6 +72,7 @@ postgres = { module = "org.postgresql:postgresql", version = "42.6.0" }
 ########
 
 redis = { module = "io.lettuce:lettuce-core", version = "6.3.0.RELEASE" }
+nats = { module = " io.nats:jnats", version = "2.17.1" }
 
 arrowCore = { module = "io.arrow-kt:arrow-core", version = "1.2.0" }
 arrowCoroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version = "1.2.0" }

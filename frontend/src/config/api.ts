@@ -23,6 +23,8 @@ export const apiPaths = {
       channels: {
         base: `/teams/${slug}/channels`,
         withSlug: (channelSlug: string) => `/teams/${slug}/channels/${channelSlug}`,
+        messages: (channelSlug: string) =>
+          `/teams/${slug}/channels/${channelSlug}/messages`,
       },
     }),
   },

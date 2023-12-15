@@ -4,9 +4,15 @@ import { Team } from "@/models/teams";
 import { TokenService } from "@/services/tokenService";
 import { Navigator, useNavigate } from "@solidjs/router";
 import { QueryClient, useQueryClient } from "@tanstack/solid-query";
-import { Accessor, createMemo } from "solid-js";
+import { Accessor, createEffect, createMemo } from "solid-js";
 import { teamsQuery } from "../api/teams";
 import { useServices } from "../services";
+import { LocationChangeTracker } from "./locationChangeTracker";
+
+type AppRouteData = {
+  teamSlug?: string | undefined;
+  channelSlug?: string | undefined;
+};
 
 export class AppShellState {
   static create = (teamSlug: Accessor<string | undefined>) => {
@@ -14,16 +20,21 @@ export class AppShellState {
     const queryClient = useQueryClient();
     const nav = useNavigate();
 
+    const tracker = createMemo(() => new LocationChangeTracker(services.ws));
+
     return createMemo(
-      () => new AppShellState(services.token, queryClient, nav, teamSlug),
+      () => new AppShellState(services.token, tracker(), queryClient, nav, teamSlug),
     );
   };
 
   private teamsQuery: ReturnType<typeof teamsQuery>;
   public addTeamModalToggle: ToggleSignal;
   public teamSlug: Accessor<string | undefined>;
+
   private constructor(
     private tokenService: TokenService,
+    private readonly locationChangeTracker: LocationChangeTracker,
+
     private queryClient: QueryClient,
     private nav: Navigator,
     teamSlug: Accessor<string | undefined>,
@@ -45,5 +56,14 @@ export class AppShellState {
   logout = async () => {
     await this.tokenService.logOut();
     this.queryClient.clear();
+  };
+
+  notifyOnTeamAndChannelChange = (routeData: Accessor<AppRouteData>) => {
+    const teamSlug = createMemo(() => routeData().teamSlug);
+    const channelSlug = createMemo(() => routeData().channelSlug);
+
+    createEffect(() => {
+      this.locationChangeTracker.changeLocation(teamSlug(), channelSlug());
+    });
   };
 }
