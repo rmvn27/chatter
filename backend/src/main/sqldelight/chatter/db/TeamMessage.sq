@@ -1,0 +1,10 @@
+findByTimestamp:
+SELECT *
+FROM TeamChannelMessageEntity
+WHERE channelId = :channelId
+AND timestamp < :timestamp
+ORDER BY timestamp DESC
+LIMIT :limit;
+
+create:
+INSERT INTO TeamChannelMessageEntity(id, userId, channelId, type, content, timestamp) VALUES ?;

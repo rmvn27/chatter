@@ -7,10 +7,16 @@ import kotlinx.serialization.json.Json
 // they all have different settings depending on what are needed
 object JsonParsers {
     val nonStrict by lazy {
-        Json { ignoreUnknownKeys = true }
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
     }
 
     val strict by lazy {
-        Json { ignoreUnknownKeys = false }
+        Json {
+            ignoreUnknownKeys = false
+            encodeDefaults = true
+        }
     }
 }

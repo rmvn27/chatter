@@ -21,4 +21,7 @@ object AppModule {
 
     @Provides
     fun provideRedisConfig(config: ApplicationConfig) = config.redis
+
+    @Provides
+    fun provideNatsConfig(config: ApplicationConfig) = config.nats
 }

@@ -20,6 +20,12 @@ services:
     ports:
       - "6379:6379"
 
+  nats:
+    image: nats:latest
+    # no volumes since nats doesnt store any state
+    ports:
+      - "4222:4222"
+
 volumes:
   data-db:
 

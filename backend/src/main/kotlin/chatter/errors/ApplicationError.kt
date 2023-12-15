@@ -15,3 +15,4 @@ sealed class InternalError : ApplicationError(
 
 // this error should not happen - but we could log to see if we made a typo somewhere accidentally
 data class ParameterNotFoundError(val parameter: String) : InternalError()
+data class QueryParameterNotFoundError(val queryParameter: String) : InternalError()

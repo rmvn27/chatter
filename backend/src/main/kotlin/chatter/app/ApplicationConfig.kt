@@ -2,6 +2,7 @@ package chatter.app
 
 import chatter.db.DatabaseService
 import chatter.domain.services.auth.AuthenticationService
+import chatter.lib.NatsService
 import chatter.lib.cache.RedisService
 import chatter.lib.http.HttpServer
 import chatter.lib.serialization.JsonParsers
@@ -14,7 +15,8 @@ data class ApplicationConfig(
     val db: DatabaseService.Config,
     val auth: AuthenticationService.Config,
     val http: HttpServer.Config = HttpServer.Config(),
-    val redis: RedisService.Config = RedisService.Config()
+    val redis: RedisService.Config = RedisService.Config(),
+    val nats: NatsService.Config = NatsService.Config()
 ) {
     companion object {
         // read the application config from a json file

@@ -7,14 +7,15 @@ import chatter.db.UserRefreshTokenQueries
 import chatter.db.asOptional
 import chatter.db.insert
 import chatter.db.withDb
+import chatter.domain.services.UserService
 import chatter.errors.BadAuthError
 import chatter.errors.BadRefreshToken
 import chatter.lib.toUUID
 import chatter.models.UserAuthTokens
 import chatter.models.UserPrincipal
-import chatter.domain.services.UserService
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.interfaces.Payload
 import io.ktor.server.auth.jwt.*
 import kotlinx.serialization.Serializable
 import java.util.Date
@@ -60,16 +61,17 @@ class AuthenticationService @Inject constructor(
     context(JWTAuthenticationProvider.Config)
     fun createJwtAuthentication() {
         realm = config.realm
-        verifier(
-            issuer = config.issuer,
-            audience = config.audience,
-            algorithm = Algorithm.HMAC256(config.jwtSecret)
-        )
+        verifier(buildVerifier())
 
-        validate {
-            UserPrincipal(it.payload.subject.toUUID())
-        }
+        validate { createPrincipal(it.payload) }
     }
+
+    fun buildVerifier() = JWT.require(Algorithm.HMAC256(config.jwtSecret))
+        .withIssuer(config.issuer)
+        .withAudience(config.audience)
+        .build()
+
+    fun createPrincipal(payload: Payload) = UserPrincipal(payload.subject.toUUID())
 
     private suspend fun createTokens(user: UserEntity): UserAuthTokens {
         val tokenEntity = UserRefreshTokenEntity(
@@ -87,8 +89,8 @@ class AuthenticationService @Inject constructor(
         .withIssuer(config.issuer)
         .withAudience(config.audience)
         .withSubject(userId.toString())
-        // expire in 15 minutes
-        .withExpiresAt(Date(System.currentTimeMillis() + (15 * 60 * 1000)))
+        // expire in 1 day
+        .withExpiresAt(Date(System.currentTimeMillis() + (24 * 60 * 60 * 1000)))
         .sign(Algorithm.HMAC256(config.jwtSecret))
 
     @Serializable

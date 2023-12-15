@@ -6,6 +6,13 @@ export const queryKeys = {
       participants: () => ["teams", slug, "participants"],
       invites: () => ["teams", slug, "invites"],
       channels: () => ["teams", slug, "channels"],
+      messages: (channelSlug: string) => () => [
+        "teams",
+        slug,
+        "channels",
+        channelSlug,
+        "messages",
+      ],
     }),
   },
 };

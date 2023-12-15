@@ -52,4 +52,5 @@ dependencies {
 
     implementation(libs.slugify)
     implementation(libs.redis)
+    implementation(libs.nats)
 }
