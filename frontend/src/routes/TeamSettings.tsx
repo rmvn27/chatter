@@ -1,5 +1,5 @@
+import { SettingsLayout } from "@/components/lib/SettingsLayout";
 import { InviteSettingsCard } from "@/components/teamSettings/InviteSettingsCard";
-import { TeamSettingsLayout } from "@/components/teamSettings/TeamSettingsLayout";
 import { ChannelsSettingsCard } from "@/components/teamSettings/channels/ChannelSettingsCard";
 import { GeneralSettingsCard } from "@/components/teamSettings/general/GeneralSettingsCard";
 import { RouteComponent, RouteData } from "@/lib/route.types";
@@ -21,10 +21,10 @@ export const Route: RouteComponent<typeof routeData> = (props) => {
   const channelsState = ChannelSettingsState.create(teamSlug);
 
   return (
-    <TeamSettingsLayout>
+    <SettingsLayout title="Settings">
       <GeneralSettingsCard state={generalState()} />
       <ChannelsSettingsCard state={channelsState()} />
       <InviteSettingsCard state={inviteState()} />
-    </TeamSettingsLayout>
+    </SettingsLayout>
   );
 };

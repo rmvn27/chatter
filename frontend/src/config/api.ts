@@ -8,24 +8,22 @@ export const apiPaths = {
   user: "/user",
   teams: {
     base: "/teams",
-    bySlug: (slug: string) => ({
-      details: `/teams/${slug}`,
-      join: `/teams/${slug}/join`,
-      leave: `/teams/${slug}/leave`,
-      participants: {
-        base: `/teams/${slug}/participants`,
-        withId: (id: string) => `/teams/${slug}/participants/${id}`,
-      },
-      invites: {
-        base: `/teams/${slug}/invites`,
-        withId: (id: string) => `/teams/${slug}/invites/${id}`,
-      },
-      channels: {
-        base: `/teams/${slug}/channels`,
-        withSlug: (channelSlug: string) => `/teams/${slug}/channels/${channelSlug}`,
-        messages: (channelSlug: string) =>
-          `/teams/${slug}/channels/${channelSlug}/messages`,
-      },
-    }),
+    bySlug: (slug: string) => `/teams/${slug}`,
+    join: (slug: string) => `/teams/${slug}/join`,
+    leave: (slug: string) => `/teams/${slug}/leave`,
   },
+  participants: (teamSlug: string) => ({
+    base: `/teams/${teamSlug}/participants`,
+    withId: (id: string) => `/teams/${teamSlug}/participants/${id}`,
+  }),
+  invites: (teamSlug: string) => ({
+    base: `/teams/${teamSlug}/invites`,
+    withId: (id: string) => `/teams/${teamSlug}/invites/${id}`,
+  }),
+  channels: (teamSlug: string) => ({
+    base: `/teams/${teamSlug}/channels`,
+    withSlug: (channelSlug: string) => `/teams/${teamSlug}/channels/${channelSlug}`,
+  }),
+  messages: (teamSlug: string, channelSlug: string) =>
+    `/teams/${teamSlug}/channels/${channelSlug}/messages`,
 };

@@ -1,11 +1,11 @@
 import { navigationRoutes } from "@/config/routes";
-import { TeamChannel } from "@/models/channels";
-import { Team, TeamParticipant } from "@/models/teams";
+import { Channel } from "@/models/channels";
+import { Participant, Team } from "@/models/teams";
 import { Navigator, useNavigate } from "@solidjs/router";
 import { Accessor, createMemo } from "solid-js";
-import { channelsQuery } from "../api/channels";
-import { participantsQuery, removeParticipant } from "../api/participants";
-import { leaveTeamMutation, teamQuery } from "../api/teams";
+import { channelsQuery } from "./api/channels";
+import { participantsQuery, removeParticipant } from "./api/participants";
+import { leaveTeamMutation, teamQuery } from "./api/teams";
 
 export class TeamState {
   static create = (
@@ -17,18 +17,18 @@ export class TeamState {
     return createMemo(() => new TeamState(teamSlug(), nav, channelSlug));
   };
 
-  private teamQuery;
-  private participantsQuery;
+  private readonly teamQuery;
+  private readonly participantsQuery;
 
-  private removeParticipantMutation;
-  private leaveMutation;
+  private readonly removeParticipantMutation;
+  private readonly leaveMutation;
 
-  private channelsQueries;
+  private readonly channelsQueries;
 
   readonly channelSlug: Accessor<string | undefined>;
   private constructor(
-    private teamSlug: string,
-    private nav: Navigator,
+    private readonly teamSlug: string,
+    private readonly nav: Navigator,
     channelSlug: Accessor<string | undefined>,
   ) {
     this.teamQuery = teamQuery({ teamSlug });
@@ -49,15 +49,15 @@ export class TeamState {
     return this.teamQuery.data;
   }
 
-  get participants(): TeamParticipant[] {
+  get participants(): Participant[] {
     return this.participantsQuery.data ?? [];
   }
 
-  get channels(): TeamChannel[] {
+  get channels(): Channel[] {
     return this.channelsQueries.data ?? [];
   }
 
-  removeParticipant = (participant: TeamParticipant) =>
+  removeParticipant = (participant: Participant) =>
     this.removeParticipantMutation.mutate(participant);
 
   navToSettings = () => {

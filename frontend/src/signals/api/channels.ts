@@ -10,28 +10,28 @@ import {
   withOnSuccess,
 } from "@/lib/signals/query";
 import {
+  Channel,
   CreateChannelForm,
-  TeamChannel,
   UpdateChannelForm,
-  teamChannel,
+  channel,
 } from "@/models/channels";
 import { z } from "zod";
 
-type TeamSlugProps = {
-  teamSlug: string;
-};
+type TeamSlugProps = { teamSlug: string };
 
-export const channelsQuery: QueryFn<TeamChannel[], TeamSlugProps> = ({
+const createChannelsInvalidation = (teamSlug: string) =>
+  createQueryInvalidation(queryKeys.channels(teamSlug));
+
+export const channelsQuery: QueryFn<Channel[], TeamSlugProps> = ({
   onSuccess,
   teamSlug,
 }) => {
-  const queryFn = () =>
-    getJson(apiPaths.teams.bySlug(teamSlug).channels.base, teamChannel.array());
+  const queryFn = () => getJson(apiPaths.channels(teamSlug).base, channel.array());
 
   return createBaseQuery({
     onSuccess,
     queryFn,
-    queryKey: queryKeys.teams.bySlug(teamSlug).channels,
+    queryKey: queryKeys.channels(teamSlug),
   });
 };
 
@@ -40,10 +40,9 @@ export const createChannelMutation: MutationFn<
   unknown,
   TeamSlugProps
 > = ({ onSuccess, teamSlug }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.bySlug(teamSlug).channels);
-
+  const invalidate = createChannelsInvalidation(teamSlug);
   const mutationFn = (form: CreateChannelForm) =>
-    postJson(apiPaths.teams.bySlug(teamSlug).channels.base, z.unknown(), form);
+    postJson(apiPaths.channels(teamSlug).base, z.unknown(), form);
 
   return createBaseMutation({
     onSuccess: withOnSuccess(onSuccess, invalidate),
@@ -57,14 +56,9 @@ export const updateChannelMutation: MutationFn<
   unknown,
   TeamSlugProps & { channelSlug: string }
 > = ({ onSuccess, teamSlug, channelSlug }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.bySlug(teamSlug).channels);
-
+  const invalidate = createChannelsInvalidation(teamSlug);
   const mutationFn = (form: UpdateChannelForm) =>
-    patchJson(
-      apiPaths.teams.bySlug(teamSlug).channels.withSlug(channelSlug),
-      z.unknown(),
-      form,
-    );
+    patchJson(apiPaths.channels(teamSlug).withSlug(channelSlug), z.unknown(), form);
 
   return createBaseMutation({
     onSuccess: withOnSuccess(onSuccess, invalidate),
@@ -77,10 +71,9 @@ export const deleteChannelMuation: MutationFn<string, unknown, TeamSlugProps> = 
   onSuccess,
   teamSlug,
 }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.bySlug(teamSlug).channels);
-
+  const invalidate = createChannelsInvalidation(teamSlug);
   const mutationFn = (slug: string) =>
-    deleteJson(apiPaths.teams.bySlug(teamSlug).channels.withSlug(slug), z.unknown());
+    deleteJson(apiPaths.channels(teamSlug).withSlug(slug), z.unknown());
 
   return createBaseMutation({
     onSuccess: withOnSuccess(onSuccess, invalidate),

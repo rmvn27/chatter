@@ -1,20 +1,18 @@
 export const queryKeys = {
-  teams: {
-    all: () => ["teams"],
-    bySlug: (slug: string) => ({
-      base: () => ["teams", slug],
-      participants: () => ["teams", slug, "participants"],
-      invites: () => ["teams", slug, "invites"],
-      channels: () => ["teams", slug, "channels"],
-      messages: (channelSlug: string) => () => [
-        "teams",
-        slug,
-        "channels",
-        channelSlug,
-        "messages",
-      ],
-    }),
-  },
+  allTeams: () => ["teams"],
+  team: (slug: string) => () => ["teams", slug],
+
+  participants: (slug: string) => () => ["teams", slug, "participants"],
+  invites: (slug: string) => () => ["teams", slug, "invites"],
+  channels: (slug: string) => () => ["teams", slug, "channels"],
+
+  messages: (teamSlug: string, channelSlug: string) => () => [
+    "teams",
+    teamSlug,
+    "channels",
+    channelSlug,
+    "messages",
+  ],
 };
 
 export const mutationKeys = {

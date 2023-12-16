@@ -7,9 +7,9 @@ type Props = {
 
 export const MessagesLayout: Component<Props> = (props) => {
   return (
-    <div class="w-full h-full flex flex-col gap-4 p-4">
+    <div class="w-full h-full flex flex-col gap-2 p-4">
       {props.messages}
-      <div>{props.chatInput}</div>
+      {props.chatInput}
     </div>
   );
 };

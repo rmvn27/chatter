@@ -1,6 +1,8 @@
-import { TeamShell } from "@/components/team/TeamShell";
+import { TeamLayout } from "@/components/team/TeamLayout";
+import { ParticipantsSidebar } from "@/components/team/participants/ParticipantsSidebar";
+import { TeamOverviewSidebar } from "@/components/team/sidebar/TeamSidebar";
 import { RouteComponent, RouteData } from "@/lib/route.types";
-import { TeamState } from "@/signals/team/teamState";
+import { TeamState } from "@/signals/teamState";
 import { z } from "zod";
 
 export const routeData = {
@@ -15,5 +17,8 @@ export const Route: RouteComponent<typeof routeData> = (props) => {
   const channelSlug = () => props.params.channelSlug;
   const state = TeamState.create(teamSlug, channelSlug);
 
-  return <TeamShell state={state()} />;
+  const sidebar = <TeamOverviewSidebar state={state()} />;
+  const participants = <ParticipantsSidebar state={state()} />;
+
+  return <TeamLayout sidebar={sidebar} participants={participants} />;
 };

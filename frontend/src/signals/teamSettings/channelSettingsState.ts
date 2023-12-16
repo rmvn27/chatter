@@ -1,5 +1,5 @@
 import { createZodForm } from "@/lib/signals/form";
-import { CreateChannelForm, TeamChannel, createChannelForm } from "@/models/channels";
+import { Channel, CreateChannelForm, createChannelForm } from "@/models/channels";
 import { reset } from "@modular-forms/solid";
 import { Accessor, createMemo } from "solid-js";
 import {
@@ -15,9 +15,9 @@ export class ChannelSettingsState {
 
   readonly createChannelForm = createZodForm(createChannelForm);
 
-  private channelsQueries;
-  private createChannelMutation;
-  private deleteMutation;
+  private readonly channelsQueries;
+  private readonly createChannelMutation;
+  private readonly deleteMutation;
 
   private constructor(teamSlug: string) {
     this.channelsQueries = channelsQuery({ teamSlug });
@@ -31,7 +31,7 @@ export class ChannelSettingsState {
     this.deleteMutation = deleteChannelMuation({ teamSlug });
   }
 
-  get channels(): TeamChannel[] {
+  get channels(): Channel[] {
     return this.channelsQueries.data ?? [];
   }
 

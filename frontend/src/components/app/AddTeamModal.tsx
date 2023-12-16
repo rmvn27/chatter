@@ -1,6 +1,6 @@
 import { TextField } from "@/components/form/TextField";
-import { BaseCard } from "@/components/layout/Card";
 import { TextButton } from "@/components/lib/Button";
+import { BaseCard } from "@/components/lib/Card";
 import { Modal } from "@/components/lib/Modal";
 import { createZodForm } from "@/lib/signals/form";
 import { ToggleSignal } from "@/lib/signals/toggle";

@@ -27,16 +27,17 @@ export class AppShellState {
     );
   };
 
-  private teamsQuery: ReturnType<typeof teamsQuery>;
-  public addTeamModalToggle: ToggleSignal;
-  public teamSlug: Accessor<string | undefined>;
+  private readonly teamsQuery;
+
+  readonly addTeamModalToggle: ToggleSignal;
+  readonly teamSlug: Accessor<string | undefined>;
 
   private constructor(
-    private tokenService: TokenService,
+    private readonly tokenService: TokenService,
     private readonly locationChangeTracker: LocationChangeTracker,
 
-    private queryClient: QueryClient,
-    private nav: Navigator,
+    private readonly queryClient: QueryClient,
+    private readonly nav: Navigator,
     teamSlug: Accessor<string | undefined>,
   ) {
     this.addTeamModalToggle = createToggle();

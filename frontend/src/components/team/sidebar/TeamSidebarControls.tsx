@@ -25,7 +25,7 @@ export const TeamSidebarControls: Component<Props> = (props) => {
 
   return (
     <Show when={props.team !== undefined}>
-      <div class="pt-1 border-t-1 border-zinc-300/10">{controls(props.team)}</div>
+      <div class="pt-1 border-t-1 border-zinc-700">{controls(props.team)}</div>
     </Show>
   );
 };

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { teamMessage } from "./messages";
+import { message } from "./messages";
 
 const enterTeamCommand = z.object({
   type: z.literal("enterTeam"),
@@ -50,7 +50,7 @@ const errorEvent = z.object({
 export type MessageEvent = z.infer<typeof messageEvent>;
 const messageEvent = z.object({
   type: z.literal("message"),
-  message: teamMessage,
+  message,
 });
 
 export type WsEvent = z.infer<typeof wsEvent>;

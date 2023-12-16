@@ -39,10 +39,8 @@ export const updateGeneralUserDataMutation: MutationFn<
   });
 };
 
-export const deleteUserMutation: MutationFn = ({ onSuccess }) => {
-  const mutationFn = async () => {
-    await deleteJson(apiPaths.user, z.unknown());
-  };
+export const deleteUserMutation: MutationFn<undefined, unknown> = ({ onSuccess }) => {
+  const mutationFn = () => deleteJson(apiPaths.user, z.unknown());
 
   return createBaseMutation({
     mutationKey: mutationKeys.user.delete,

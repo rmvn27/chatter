@@ -1,7 +1,7 @@
 import type { UserSettingsState } from "@/signals/userSettingsState";
 import type { Component } from "solid-js";
-import { Card } from "../layout/Card";
 import { TextButton } from "../lib/Button";
+import { Card } from "../lib/Card";
 import { DeleteAccountModal } from "./DeleteAccountModal";
 
 type Props = {

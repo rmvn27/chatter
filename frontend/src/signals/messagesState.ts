@@ -1,5 +1,6 @@
+import { isToday } from "@/lib/date";
 import { createZodForm } from "@/lib/signals/form";
-import { SendMessageForm, TeamMessage, sendMessageForm } from "@/models/messages";
+import { Message, SendMessageForm, sendMessageForm } from "@/models/messages";
 import { WebsocketService } from "@/services/websocketService";
 import {
   Accessor,
@@ -20,20 +21,22 @@ export class MessagesState {
     return createMemo(() => new MessagesState(services.ws, teamSlug(), channelSlug()));
   };
 
-  readonly sendMessageForm = createZodForm(sendMessageForm);
+  private readonly today = new Date();
 
+  readonly sendMessageForm = createZodForm(sendMessageForm);
   readonly usernamesById: Accessor<Map<string, string>>;
 
-  readonly liveMessages: Accessor<TeamMessage[]>;
-  private readonly setLiveMessages: Setter<TeamMessage[]>;
+  readonly liveMessages: Accessor<Message[]>;
+  private readonly setLiveMessages: Setter<Message[]>;
 
-  readonly messagesQuery;
+  private readonly messagesQuery;
   constructor(
     private readonly wsService: WebsocketService,
     teamSlug: string,
     channelSlug: string,
   ) {
     const participants = participantsQuery({ teamSlug });
+
     this.usernamesById = createMemo(() => {
       const output = new Map<string, string>();
       if (participants.data === undefined) return output;
@@ -41,7 +44,8 @@ export class MessagesState {
       participants.data.forEach((d) => output.set(d.id, d.name));
       return output;
     });
-    const [liveMessages, setLiveMessages] = createSignal<TeamMessage[]>([], {
+
+    const [liveMessages, setLiveMessages] = createSignal<Message[]>([], {
       equals: false,
     });
     this.liveMessages = liveMessages;
@@ -49,6 +53,16 @@ export class MessagesState {
 
     this.messagesQuery = messagesInfiniteQuery({ teamSlug, channelSlug });
   }
+
+  get historySegments(): Message[][] {
+    return this.messagesQuery.data?.pages ?? [];
+  }
+
+  fetchNextHistoryPage = () => {
+    if (this.messagesQuery.hasNextPage && !this.messagesQuery.isFetchingNextPage) {
+      this.messagesQuery.fetchNextPage();
+    }
+  };
 
   sendMessage = (form: SendMessageForm) => {
     if (form.message === "") return;
@@ -60,18 +74,17 @@ export class MessagesState {
     this.sendMessageForm.internal.fields.get("message")?.setInput("");
   };
 
+  // add the new message and then just return the old array
+  // dont create a copy for performance reasons
+  //
+  // also we need to prepend items to work with the column-reverse mode of
+  // flexbox. Its needed to always show the most recent message without having to scroll
+  //
+  // otherwise prepending would have been more performant
   syncMessages = () => {
     createEffect(() => {
       const symb = this.wsService.registerListener((e) => {
-        console.log(e);
         if (e.type === "message") {
-          // add the new message and then just return the old array
-          // dont create a copy for performance reasons
-          //
-          // also we need to prepend items to work with the column-reverse mode of
-          // flexbox. Its needed to always show the most recent message without having to scroll
-          //
-          // otherwise prepending would have been more performant
           this.setLiveMessages((prev) => {
             prev.unshift(e.message);
             return prev;
@@ -85,25 +98,29 @@ export class MessagesState {
     });
   };
 
-  createDisplayMessages = (messages: Accessor<TeamMessage[]>) => {
-    return createMemo(() => {
-      const usernamesMap = this.usernamesById();
+  createPrettifiedMessages = (messages: Accessor<Message[]>) => {
+    const usernamesMap = this.usernamesById();
 
-      return messages().map((m) => {
-        const date = new Date(m.timestamp);
-        const hours = `${date.getHours()}`.padStart(2, "0");
-        const minutes = `${date.getMinutes()}`.padStart(2, "0");
-        const formattedDate = `${hours}:${minutes}`;
+    return messages().map((m) => {
+      const date = new Date(m.timestamp);
+      const hours = `${date.getHours()}`.padStart(2, "0");
+      const minutes = `${date.getMinutes()}`.padStart(2, "0");
+      let formattedDate = `${hours}:${minutes}`;
+      if (!isToday(this.today, date)) {
+        const day = date.getDate();
+        // js months start at 0
+        const month = date.getMonth() + 1;
 
-        const username =
-          m.userId !== undefined ? usernamesMap.get(m.userId) : undefined;
+        formattedDate = `${formattedDate} - ${day}.${month}`;
+      }
 
-        return {
-          content: m.content,
-          date: formattedDate,
-          username: username ?? "<unknown>",
-        };
-      });
+      const username = m.userId !== undefined ? usernamesMap.get(m.userId) : undefined;
+
+      return {
+        content: m.content,
+        date: formattedDate,
+        username: username ?? "<unknown>",
+      };
     });
   };
 }

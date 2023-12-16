@@ -68,6 +68,8 @@ export class UserSettingsState {
     });
   }
 
+  // expose the error since we can't associate
+  // 'not same' password error to a specific field
   get updateError(): string | undefined {
     return this.updatePasswordMutation.error?.message;
   }
