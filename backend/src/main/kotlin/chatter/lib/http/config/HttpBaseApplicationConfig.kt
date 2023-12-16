@@ -21,6 +21,7 @@ import kotlinx.serialization.json.put
 //
 // - configure json serialization
 // - configure cors
+// - improve status pages (that are automatically send by ktor)
 @ContributesMultibinding(AppScope::class)
 object HttpBaseApplicationConfig : HttpApplicationConfig {
     private val logger = Logger.withTag("HttpServer")
@@ -48,6 +49,7 @@ object HttpBaseApplicationConfig : HttpApplicationConfig {
 
         install(StatusPages) {
             exception<Throwable> { call, cause ->
+                // log on a unhandled exception
                 logger.e(cause) { "Encountered error during the request" }
 
                 call.status(HttpStatusCode.InternalServerError)

@@ -1,18 +1,18 @@
 findByTeamId:
 SELECT u.*
 FROM UserEntity u
-JOIN TeamParticipantEntity tp
+JOIN ParticipantEntity tp
 ON u.id = tp.userId
 WHERE teamId = :teamId;
 
 findParticipantByIdAndTeam:
 SELECT *
-FROM TeamParticipantEntity
+FROM ParticipantEntity
 WHERE teamId = :teamId
 AND userId = :userId;
 
 create:
-INSERT INTO TeamParticipantEntity VALUES ?;
+INSERT INTO ParticipantEntity VALUES ?;
 
 delete:
-DELETE FROM TeamParticipantEntity WHERE userId = :userId AND teamId = :teamId;
+DELETE FROM ParticipantEntity WHERE userId = :userId AND teamId = :teamId;

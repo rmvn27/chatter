@@ -1,31 +1,22 @@
 package chatter.http
 
-import chatter.domain.services.live.client.ClientConnection
-import chatter.domain.services.live.client.ClientConnectionState
-import chatter.lib.Locked
+import chatter.domain.services.live.connection.ClientConnection
 import chatter.models.WsCommand
 import chatter.models.WsEvent
 import io.ktor.serialization.*
 import io.ktor.server.websocket.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
-import java.util.UUID
 
+// `ClientConnection` based on a Websocket
 class WsConnection(
-    override val userId: UUID,
     private val session: WebSocketServerSession
 ) : ClientConnection {
-    private val state = Locked<ClientConnectionState>(ClientConnectionState.Base)
-
-    override suspend fun state() = state.get()
-    override suspend fun <T : ClientConnectionState> setState(
-        newState: suspend (ClientConnectionState) -> T
-    ) = state.update(newState)
-
     private val closeActions = mutableSetOf<suspend () -> Unit>()
 
     // make sure that the incoming channel can be consumed multiple times
@@ -52,4 +43,6 @@ class WsConnection(
     override fun onClosed(action: suspend () -> Unit) {
         closeActions.add(action)
     }
+
+    override suspend fun close() = session.close()
 }

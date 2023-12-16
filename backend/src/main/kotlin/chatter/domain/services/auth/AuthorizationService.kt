@@ -7,7 +7,7 @@ import chatter.domain.caches.AuthorizationCache
 import chatter.domain.stores.TeamStore
 import chatter.errors.UserHasNoAccessToTeamError
 import chatter.errors.UserIsNotTeamOwnerError
-import java.util.UUID
+import chatter.models.UserPrincipal
 import javax.inject.Inject
 
 class AuthorizationService @Inject constructor(
@@ -15,29 +15,29 @@ class AuthorizationService @Inject constructor(
     private val queries: TeamParticipantQueries,
     private val cache: AuthorizationCache
 ) {
-    suspend fun authorizeTeamOwner(userId: UUID, teamSlug: String) = either {
+    suspend fun authorizeTeamOwner(user: UserPrincipal, teamSlug: String) = either {
         val teamOwner = getTeamOwner(teamSlug).bind()
-        if (teamOwner != userId) raise(UserIsNotTeamOwnerError)
+        if (teamOwner != user) raise(UserIsNotTeamOwnerError)
     }
 
-    suspend fun authorizeTeamOwnerOrParticipant(userId: UUID, teamSlug: String) = either {
+    suspend fun authorizeTeamOwnerOrParticipant(user: UserPrincipal, teamSlug: String) = either {
         val teamOwner = getTeamOwner(teamSlug).bind()
-        if (teamOwner == userId) return@either
+        if (teamOwner == user) return@either
 
         // we only save the valid participants in the cache
         //
         // if a user has to access we will hit the db every time,
         // not optional but should improve the performance for valid users
-        if (cache.checkForTeamParticipant(teamSlug, userId)) return@either
+        if (cache.checkForTeamParticipant(teamSlug, user)) return@either
 
         val team = teamStore.findBySlug(teamSlug).bind()
         val maybeParticipant = queries.findParticipantByIdAndTeam(
-            userId = userId,
+            userId = user.userId,
             teamId = team.id
         ).asOptional()
         // the user is a participant => success
         if (maybeParticipant != null) {
-            cache.putTeamParticipant(teamSlug, userId)
+            cache.putTeamParticipant(teamSlug, user)
             return@either
         }
 
@@ -51,8 +51,10 @@ class AuthorizationService @Inject constructor(
 
         // the get from db and put in cache
         val team = teamStore.findBySlug(teamSlug).bind()
-        cache.putTeamOwner(teamSlug, team.ownerId)
+        val owner = UserPrincipal(team.ownerId)
 
-        team.ownerId
+        cache.putTeamOwner(teamSlug, owner)
+
+        owner
     }
 }

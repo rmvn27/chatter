@@ -1,6 +1,6 @@
 package chatter.models
 
-import chatter.TeamChannelEntity
+import chatter.ChannelEntity
 import chatter.TeamEntity
 import chatter.UserEntity
 import chatter.lib.serialization.UUIDSerializer
@@ -17,7 +17,7 @@ data class Team(
     val isOwner: Boolean
 )
 
-fun TeamEntity.toDomain(userId: UUID) = toDomain(ownerId == userId)
+fun TeamEntity.toDomain(user: UserPrincipal) = toDomain(ownerId == user.userId)
 fun TeamEntity.toDomain(isOwner: Boolean) = Team(
     id = id,
     slug = slug,
@@ -25,16 +25,16 @@ fun TeamEntity.toDomain(isOwner: Boolean) = Team(
     isOwner = isOwner
 )
 
-// this call will be inlined and is only used for type safety
+// this class will be inlined and is only used for type safety
 @Serializable
 @JvmInline
-value class TeamInvite(
+value class Invite(
     @Serializable(with = UUIDSerializer::class)
     val invite: UUID
 )
 
 @Serializable
-data class TeamParticipant(
+data class Participant(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val name: String,
@@ -42,7 +42,7 @@ data class TeamParticipant(
     val teamOwner: Boolean
 )
 
-fun UserEntity.toDomain(teamOwner: Boolean) = TeamParticipant(
+fun UserEntity.toDomain(teamOwner: Boolean) = Participant(
     id = id,
     username = username,
     teamOwner = teamOwner,
@@ -51,7 +51,7 @@ fun UserEntity.toDomain(teamOwner: Boolean) = TeamParticipant(
 
 
 @Serializable
-data class TeamChannel(
+data class Channel(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val name: String,
@@ -59,7 +59,7 @@ data class TeamChannel(
 )
 
 
-fun TeamChannelEntity.toDomain() = TeamChannel(
+fun ChannelEntity.toDomain() = Channel(
     id = id,
     name = name,
     slug = slug

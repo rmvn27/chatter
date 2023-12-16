@@ -1,28 +1,28 @@
-package chatter.domain.services
+package chatter.domain.services.teams
 
 import arrow.core.raise.either
+import chatter.ParticipantEntity
 import chatter.TeamEntity
-import chatter.TeamParticipantEntity
 import chatter.db.TeamParticipantQueries
-import chatter.db.UserQueries
 import chatter.db.asList
-import chatter.db.asOneInfallible
 import chatter.db.insert
 import chatter.db.withDb
 import chatter.domain.caches.AuthorizationCache
 import chatter.domain.caches.ParticipantsCache
+import chatter.domain.services.UserService
 import chatter.domain.stores.TeamStore
-import chatter.models.TeamParticipant
+import chatter.models.Participant
+import chatter.models.UserPrincipal
 import chatter.models.toDomain
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.util.UUID
 import javax.inject.Inject
 
-class TeamParticipantService @Inject constructor(
+class ParticipantService @Inject constructor(
     private val queries: TeamParticipantQueries,
     private val teamStore: TeamStore,
-    private val userQueries: UserQueries,
+    private val userService: UserService,
     private val authCache: AuthorizationCache,
     private val cache: ParticipantsCache
 ) {
@@ -38,8 +38,7 @@ class TeamParticipantService @Inject constructor(
                 }
 
                 val owner = async {
-                    userQueries.findById(team.ownerId)
-                        .asOneInfallible()
+                    userService.findByIdInfallible(team.ownerId)
                         .toDomain(true)
                 }
 
@@ -49,32 +48,34 @@ class TeamParticipantService @Inject constructor(
                     addAll(participants.await())
 
                     //this can't happen in sql since we have to add the owner to it
-                    sortBy(TeamParticipant::name)
+                    sortBy(Participant::name)
                 }
             }
         }
     }
 
-    suspend fun add(team: TeamEntity, userId: UUID): TeamParticipantEntity {
-        // since we construct the cached list dynamically
-        // its just easier to delete the whole entry
+    suspend fun add(team: TeamEntity, user: UserPrincipal): ParticipantEntity {
+        // since we serialize the complete list, we heave to reconstruct the cache
+        // again. So we delete it here, then it can be created again in `findMany`
         cache.delete(team.slug)
 
-        return TeamParticipantEntity(
+        return ParticipantEntity(
             teamId = team.id,
-            userId = userId
+            userId = user.userId
         ).insert(queries::create)
     }
 
+    // keep the
     suspend fun delete(teamSlug: String, userId: UUID) = either {
         val team = teamStore.findBySlug(teamSlug).bind()
 
-        delete(team, userId)
+        // just assume that the userId is correct and convert it to the `UserPrincipal`
+        delete(team, UserPrincipal(userId))
     }
 
-    suspend fun delete(team: TeamEntity, userId: UUID) {
-        withDb { queries.delete(userId = userId, teamId = team.id) }
-        authCache.removeParticipant(team.slug, userId)
+    suspend fun delete(team: TeamEntity, user: UserPrincipal) {
+        withDb { queries.delete(userId = user.userId, teamId = team.id) }
+        authCache.removeParticipant(team.slug, user)
         cache.delete(team.slug)
     }
 }

@@ -1,17 +1,15 @@
 package chatter.http.routers
 
-import arrow.core.raise.Raise
-import chatter.domain.services.TeamService
-import chatter.errors.ApplicationError
+import chatter.domain.services.teams.TeamService
 import chatter.http.EmptyJson
 import chatter.http.TeamAuthorizationPlugin
 import chatter.http.isTeamOwner
 import chatter.http.isTeamOwnerOrParticipant
-import chatter.http.userId
+import chatter.http.teamSlug
+import chatter.http.user
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
-import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import chatter.lib.serialization.UUIDSerializer
@@ -31,20 +29,25 @@ class TeamsRouter @Inject constructor(
     private val service: TeamService,
     private val authorization: TeamAuthorizationPlugin
 ) : HttpRouter {
+    // use in general slugs for the route since
+    // the frontend doesn't use the UUID's for the routes
+    // and we have to get the resources out by just using the route params there
+    //
+    // so the team (and later channel) can be accessed by slug
     override fun Routing.routes() {
         authenticate {
             get("/teams") { findMany() }
             post("/teams") { create() }
             post("/teams/{teamSlug}/join") { join() }
 
-            isTeamOwnerOrParticipant(authorization, "teamSlug") {
+            isTeamOwnerOrParticipant(authorization) {
                 get("/teams/{teamSlug}") { findById() }
                 // a user is always allowed to just leave a team by himself
                 post("/teams/{teamSlug}/leave") { leave() }
             }
 
             // only team owners can update and delete their teams
-            isTeamOwner(authorization, "teamSlug") {
+            isTeamOwner(authorization) {
                 patch("/teams/{teamSlug}") { update() }
                 delete("/teams/{teamSlug}") { delete() }
             }
@@ -52,13 +55,13 @@ class TeamsRouter @Inject constructor(
     }
 
     private suspend fun RouteContext.findMany() {
-        val teams = service.findForUser(call.userId)
+        val teams = service.findForUser(call.user)
         call.respond(teams)
     }
 
     private suspend fun RouteContext.findById() = handle {
         val team = service.findBySlug(
-            userId = call.userId,
+            user = call.user,
             teamSlug = call.teamSlug
         ).bind()
 
@@ -71,7 +74,7 @@ class TeamsRouter @Inject constructor(
         service.joinTeam(
             slug = call.teamSlug,
             invite = invite,
-            userId = call.userId
+            user = call.user
         ).bind()
         call.respond(EmptyJson)
     }
@@ -79,14 +82,14 @@ class TeamsRouter @Inject constructor(
     private suspend fun RouteContext.leave() = handle {
         service.removeUserFromTeam(
             slug = call.teamSlug,
-            userId = call.userId
+            user = call.user
         ).bind()
         call.respond(EmptyJson)
     }
 
     private suspend fun RouteContext.create() {
         val name = call.receive<CreateRequest>().name
-        val team = service.create(name, call.userId)
+        val team = service.create(call.user, name)
 
         call.status(HttpStatusCode.Created)
         call.respond(team)
@@ -95,7 +98,7 @@ class TeamsRouter @Inject constructor(
     private suspend fun RouteContext.update() = handle {
         val body = call.receive<UpdateRequest>()
         val newTeam = service.update(
-            userId = call.userId,
+            user = call.user,
             teamSlug = call.teamSlug,
             name = body.name
         ).bind()
@@ -123,8 +126,4 @@ class TeamsRouter @Inject constructor(
     data class UpdateRequest(
         val name: String? = null
     )
-
-    context(Raise<ApplicationError>)
-    private val ApplicationCall.teamSlug
-        get() = getParam("teamSlug")
 }

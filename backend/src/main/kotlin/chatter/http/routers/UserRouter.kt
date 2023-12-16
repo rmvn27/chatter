@@ -2,7 +2,7 @@ package chatter.http.routers
 
 import chatter.domain.services.UserService
 import chatter.http.EmptyJson
-import chatter.http.userId
+import chatter.http.user
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
@@ -30,7 +30,7 @@ class UserRouter @Inject constructor(
         val request = call.receive<UpdateRequest>()
 
         service.update(
-            userId = call.userId,
+            userPrincipal = call.user,
             password = request.password,
             name = request.name
         )
@@ -39,7 +39,7 @@ class UserRouter @Inject constructor(
     }
 
     private suspend fun RouteContext.delete() {
-        service.delete(call.userId)
+        service.delete(call.user)
 
         call.respond(EmptyJson)
     }

@@ -1,16 +1,15 @@
 package chatter.http.routers
 
-import arrow.core.raise.Raise
-import chatter.domain.services.TeamChannelService
-import chatter.errors.ApplicationError
+import chatter.domain.services.teams.ChannelService
 import chatter.http.EmptyJson
 import chatter.http.TeamAuthorizationPlugin
+import chatter.http.channelSlug
 import chatter.http.isTeamOwner
 import chatter.http.isTeamOwnerOrParticipant
+import chatter.http.teamSlug
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
-import chatter.lib.http.getParam
 import chatter.lib.http.handle
 import chatter.lib.http.status
 import com.squareup.anvil.annotations.ContributesMultibinding
@@ -25,16 +24,16 @@ import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
 class TeamChannelsRouter @Inject constructor(
-    private val service: TeamChannelService,
+    private val service: ChannelService,
     private val authorization: TeamAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {
-            isTeamOwnerOrParticipant(authorization, "teamSlug") {
+            isTeamOwnerOrParticipant(authorization) {
                 get("/teams/{teamSlug}/channels") { findMany() }
             }
 
-            isTeamOwner(authorization, "teamSlug") {
+            isTeamOwner(authorization) {
                 post("/teams/{teamSlug}/channels") { create() }
                 delete("/teams/{teamSlug}/channels/{channelSlug}") { delete() }
             }
@@ -69,12 +68,4 @@ class TeamChannelsRouter @Inject constructor(
 
     @Serializable
     data class CreateRequest(val name: String)
-
-    context(Raise<ApplicationError>)
-    private val ApplicationCall.channelSlug
-        get() = getParam("channelSlug")
-
-    context(Raise<ApplicationError>)
-    private val ApplicationCall.teamSlug
-        get() = getParam("teamSlug")
 }

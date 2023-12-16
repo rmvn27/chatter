@@ -20,10 +20,9 @@ data class ApplicationConfig(
 ) {
     companion object {
         // read the application config from a json file
-        // this will also include secrets so don't but it in version control!
+        // this will also include secrets so don't put it in version control!
         fun read(): ApplicationConfig {
             val configLocation = System.getenv("CHATTER_CONFIG_LOCATION") ?: "./config.json"
-            // `readText` can handle up to 2GiB so it should be fine with the config file
             val content = File(configLocation).readText()
 
             return JsonParsers.nonStrict.decodeFromString<ApplicationConfig>(content)

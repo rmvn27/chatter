@@ -7,7 +7,6 @@ import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
 import chatter.lib.http.handle
 import chatter.lib.http.status
-import chatter.lib.serialization.UUIDSerializer
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -15,7 +14,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import java.util.UUID
 import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
@@ -74,14 +72,8 @@ class AuthRouter @Inject constructor(
     )
 
     @Serializable
-    data class RegenerateTokensRequest(
-        @Serializable(with = UUIDSerializer::class)
-        val refreshToken: UUID
-    )
+    data class RegenerateTokensRequest(val refreshToken: String)
 
     @Serializable
-    data class LogoutRequest(
-        @Serializable(with = UUIDSerializer::class)
-        val refreshToken: UUID
-    )
+    data class LogoutRequest(val refreshToken: String)
 }

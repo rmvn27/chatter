@@ -14,9 +14,9 @@ import chatter.lib.toUUID
 import chatter.models.UserAuthTokens
 import chatter.models.UserPrincipal
 import com.auth0.jwt.JWT
+import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.Payload
-import io.ktor.server.auth.jwt.*
 import kotlinx.serialization.Serializable
 import java.util.Date
 import java.util.UUID
@@ -27,6 +27,16 @@ class AuthenticationService @Inject constructor(
     private val queries: UserRefreshTokenQueries,
     private val config: Config
 ) {
+    val configRealm = config.realm
+    val jwtVerifier: JWTVerifier by lazy {
+        JWT.require(Algorithm.HMAC256(config.jwtSecret))
+            .withIssuer(config.issuer)
+            .withAudience(config.audience)
+            .build()
+    }
+
+    fun getUserFromPayload(payload: Payload) = UserPrincipal(payload.subject.toUUID())
+
     suspend fun register(username: String, password: String) = either {
         val newUser = userService.create(username, password).bind()
 
@@ -40,9 +50,9 @@ class AuthenticationService @Inject constructor(
         createTokens(user)
     }
 
-    suspend fun regenerateTokens(refreshToken: UUID) = either {
+    suspend fun regenerateTokens(refreshToken: String) = either {
         // check the validity if the refreshToken and look up the userId
-        val refreshTokenEntity = queries.findByRefreshToken(refreshToken)
+        val refreshTokenEntity = queries.findByRefreshToken(refreshToken.toUUID())
             .asOptional()
             ?: raise(BadRefreshToken)
         val jwtToken = createJwtToken(refreshTokenEntity.userId)
@@ -53,25 +63,9 @@ class AuthenticationService @Inject constructor(
         )
     }
 
-    suspend fun logout(refreshToken: UUID) = withDb {
-        queries.deleteByRefreshToken(refreshToken)
+    suspend fun logout(refreshToken: String) = withDb {
+        queries.deleteByRefreshToken(refreshToken.toUUID())
     }
-
-    // create the auth functionality that can be directly installed into ktor
-    context(JWTAuthenticationProvider.Config)
-    fun createJwtAuthentication() {
-        realm = config.realm
-        verifier(buildVerifier())
-
-        validate { createPrincipal(it.payload) }
-    }
-
-    fun buildVerifier() = JWT.require(Algorithm.HMAC256(config.jwtSecret))
-        .withIssuer(config.issuer)
-        .withAudience(config.audience)
-        .build()
-
-    fun createPrincipal(payload: Payload) = UserPrincipal(payload.subject.toUUID())
 
     private suspend fun createTokens(user: UserEntity): UserAuthTokens {
         val tokenEntity = UserRefreshTokenEntity(
@@ -80,7 +74,7 @@ class AuthenticationService @Inject constructor(
         ).insert(queries::insert)
 
         return UserAuthTokens(
-            refreshToken = tokenEntity.refreshToken,
+            refreshToken = tokenEntity.refreshToken.toString(),
             accessToken = createJwtToken(user.id)
         )
     }

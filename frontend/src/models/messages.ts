@@ -7,10 +7,16 @@ export type DisplayTeamMessage = {
   content: string;
 };
 
+const messageContent = z
+  .object({
+    content: z.string(),
+    type: z.literal("text"),
+  })
+  .transform((d) => d.content);
+
 export type TeamMessage = z.infer<typeof teamMessage>;
 export const teamMessage = z.object({
-  content: z.string(),
-  contentType: z.literal("text").optional(),
+  content: messageContent,
 
   userId: z.string().optional(),
   timestamp: z.number(),

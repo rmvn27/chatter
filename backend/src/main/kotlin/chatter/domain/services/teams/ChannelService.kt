@@ -1,7 +1,7 @@
-package chatter.domain.services
+package chatter.domain.services.teams
 
 import arrow.core.raise.either
-import chatter.TeamChannelEntity
+import chatter.ChannelEntity
 import chatter.db.TeamChannelQueries
 import chatter.db.asList
 import chatter.db.asOne
@@ -11,25 +11,22 @@ import chatter.domain.caches.TeamChannelCache
 import chatter.domain.stores.TeamStore
 import chatter.errors.ChannelNotFoundError
 import chatter.lib.Slug
-import chatter.models.TeamChannel
 import chatter.models.toDomain
 import java.util.UUID
 import javax.inject.Inject
 
-class TeamChannelService @Inject constructor(
+class ChannelService @Inject constructor(
     private val queries: TeamChannelQueries,
     private val teamStore: TeamStore,
     private val cache: TeamChannelCache
 ) {
-
     suspend fun findMany(teamSlug: String) = either {
         cache.getOrPut(teamSlug) {
             val team = teamStore.findBySlug(teamSlug).bind()
 
             queries.findByTeamId(team.id)
                 .asList()
-                .map(TeamChannelEntity::toDomain)
-                .sortedBy(TeamChannel::name)
+                .map(ChannelEntity::toDomain)
         }
     }
 
@@ -39,7 +36,7 @@ class TeamChannelService @Inject constructor(
         }
     }
 
-    suspend fun findChannelBySlug(teamSlug: String, channelSlug: String) = either {
+    suspend fun findChannelBySlugs(teamSlug: String, channelSlug: String) = either {
         val team = teamStore.findBySlug(teamSlug).bind()
 
         findChannelByTeamIdAndSlug(team.id, channelSlug).bind()
@@ -48,7 +45,7 @@ class TeamChannelService @Inject constructor(
     suspend fun create(teamSlug: String, name: String) = either {
         val team = teamStore.findBySlug(teamSlug).bind()
 
-        val entity = TeamChannelEntity(
+        val entity = ChannelEntity(
             id = UUID.randomUUID(),
             teamId = team.id,
             name = name,
@@ -60,7 +57,7 @@ class TeamChannelService @Inject constructor(
     }
 
     suspend fun delete(teamSlug: String, channelSlug: String) = either {
-        val channel = findChannelBySlug(teamSlug, channelSlug).bind()
+        val channel = findChannelBySlugs(teamSlug, channelSlug).bind()
 
         withDb { queries.deleteById(channel.id) }
         cache.delete(teamSlug)

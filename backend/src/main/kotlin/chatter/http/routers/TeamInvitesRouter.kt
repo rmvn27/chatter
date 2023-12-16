@@ -1,11 +1,12 @@
 package chatter.http.routers
 
 import arrow.core.raise.Raise
-import chatter.domain.services.TeamInviteService
+import chatter.domain.services.teams.InviteService
 import chatter.errors.ApplicationError
 import chatter.http.EmptyJson
 import chatter.http.TeamAuthorizationPlugin
 import chatter.http.isTeamOwner
+import chatter.http.teamSlug
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
@@ -23,13 +24,13 @@ import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
 class TeamInvitesRouter @Inject constructor(
-    private val service: TeamInviteService,
+    private val service: InviteService,
     private val authorization: TeamAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {
             // only team owners are allowed to see, create and delete invites
-            isTeamOwner(authorization, "teamSlug") {
+            isTeamOwner(authorization) {
                 get("/teams/{teamSlug}/invites") { findMany() }
                 post("/teams/{teamSlug}/invites") { create() }
 
@@ -55,10 +56,6 @@ class TeamInvitesRouter @Inject constructor(
         service.delete(call.invite)
         call.respond(EmptyJson)
     }
-
-    context(Raise<ApplicationError>)
-    private val ApplicationCall.teamSlug
-        get() = getParam("teamSlug")
 
     context(Raise<ApplicationError>)
     private val ApplicationCall.invite

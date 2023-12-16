@@ -9,7 +9,7 @@ import io.ktor.server.application.*
 // provide a better interface for handling hooks that could error
 //
 // this only works for hooks that provide a application call
-// which should be all of the basic ones like AuthenticationChecked
+// which should be all of the basic ones like `AuthenticationChecked`
 fun <T : Any> PluginBuilder<T>.onWithError(
     hook: Hook<suspend (ApplicationCall) -> Unit>,
     handler: suspend Raise<ApplicationError>.(ApplicationCall) -> Unit

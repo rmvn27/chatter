@@ -10,6 +10,7 @@ import chatter.db.withDb
 import chatter.domain.caches.ParticipantsCache
 import chatter.errors.UserAlreadyExistsError
 import chatter.lib.app.AppScope
+import chatter.models.UserPrincipal
 import com.squareup.anvil.annotations.optional.SingleIn
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.util.UUID
@@ -22,10 +23,11 @@ class UserService @Inject constructor(
     private val queries: UserQueries,
     private val participantsCache: ParticipantsCache
 ) {
-    // use the password encode from spring for a simpler interface to bouncy castle
+    // use the `PasswordEncoder` from spring for a simpler interface to bouncy castle
     // this has no other dependencies to other spring packages
     private val passwordEncoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
 
+    suspend fun findByIdInfallible(id: UUID) = queries.findById(id).asOneInfallible()
     suspend fun findByUsername(username: String) = queries.findByUsername(username).asOptional()
 
     suspend fun create(
@@ -35,21 +37,19 @@ class UserService @Inject constructor(
         // check for user with the same username
         if (findByUsername(username) != null) raise(UserAlreadyExistsError(username))
 
-        val hashedPassword = passwordEncoder.encode(password)
-
         UserEntity(
             id = UUID.randomUUID(),
             username = username,
             displayName = username,
-            password = hashedPassword
+            password = passwordEncoder.encode(password)
         ).insert(queries::insert)
     }
 
     fun verifyPassword(user: UserEntity, providedPassword: String) =
         passwordEncoder.matches(providedPassword, user.password)
 
-    suspend fun update(userId: UUID, password: String?, name: String?) {
-        val user = queries.findById(userId).asOneInfallible()
+    suspend fun update(userPrincipal: UserPrincipal, password: String?, name: String?) {
+        val user = queries.findById(userPrincipal.userId).asOneInfallible()
 
         var changed = false
         var newPassword = user.password
@@ -65,11 +65,10 @@ class UserService @Inject constructor(
             changed = true
         }
 
-
         if (changed) {
             withDb {
                 queries.update(
-                    id = userId,
+                    id = user.id,
                     password = newPassword,
                     displayName = newDisplayName
                 )
@@ -81,8 +80,8 @@ class UserService @Inject constructor(
         }
     }
 
-    suspend fun delete(user: UUID) {
-        withDb { queries.delete(user) }
+    suspend fun delete(user: UserPrincipal) {
+        withDb { queries.delete(user.userId) }
 
         // edge case: since the participants of a team
         // are cached inside a list we just have to clear the whole cache

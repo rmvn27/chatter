@@ -1,0 +1,41 @@
+-----------------------------------------
+-- better names for tables and indexes --
+------------------------------------------
+
+-- improve `TeamEntity`
+-- - choose a better name for the index
+DROP INDEX TeamEntitySlugIndex;
+CREATE INDEX TeamEntity_BySlug_Index ON TeamEntity(slug);
+
+-- improve `TeamParticipantEntity`
+-- - rename to just `ParticipantEntity`
+-- - chose a better name for the index
+
+ALTER TABLE TeamParticipantEntity RENAME TO ParticipantEntity;
+
+DROP INDEX TeamParticipantEntityTeamIdIndex;
+CREATE INDEX ParticipantEntity_ByTeamId_Index ON ParticipantEntity(teamId);
+
+-- improve `TeamInviteEntity`
+-- - rename to just `InviteEntity`
+ALTER TABLE TeamInviteEntity RENAME TO InviteEntity;
+
+-- improve `TeamChannelEntity`
+-- - rename to just `ChannelEntity`
+-- - improve index names
+
+ALTER TABLE TeamChannelEntity RENAME TO ChannelEntity;
+
+DROP INDEX TeamChannelEntityTeamIdIndex;
+CREATE INDEX ChannelEntity_ByTeamId_Index ON ChannelEntity(teamId);
+
+
+-- improve `TeamChannelMessageEntity`
+-- - rename to just `MessageEntity`
+-- - improve index name
+
+ALTER TABLE TeamChannelMessageEntity RENAME TO MessageEntity;
+
+DROP INDEX TeamChannelMessageEntityChannelAndTimestampIndex;
+
+CREATE INDEX MessageEntity_ByChannelIdAndTimestamp_Index ON MessageEntity(channelId, timestamp DESC);
