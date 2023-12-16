@@ -22,7 +22,7 @@ export const ChatInput: Component<Props> = (props) => {
       <TextArea
         form={form()}
         name="message"
-        placeholder="Message..."
+        placeholder="Message (shift+enter available for more lines!)"
         onEnter={submit}
       />
     </Form>
