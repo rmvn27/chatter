@@ -2,51 +2,51 @@ package chatter.http.routers
 
 import arrow.core.Either
 import chatter.domain.services.auth.AuthenticationService
-import chatter.domain.services.live.TeamRoomService
+import chatter.domain.services.live.RoomService
+import chatter.domain.services.live.connection.ClientConnection
+import chatter.domain.services.live.connection.ClientConnectionHandler
+import chatter.domain.services.teams.MessageService
 import chatter.http.WsConnection
 import chatter.lib.app.AppScope
 import chatter.lib.http.config.HttpRouter
+import chatter.models.UserPrincipal
 import chatter.models.WsCommand
 import com.squareup.anvil.annotations.ContributesMultibinding
-import io.ktor.serialization.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
-import io.ktor.websocket.*
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
-import java.util.UUID
 import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
 class WsRouter @Inject constructor(
     private val authService: AuthenticationService,
-    private val service: TeamRoomService
+    private val service: RoomService,
+    private val messageService: MessageService
 ) : HttpRouter {
-    private val verifier = authService.buildVerifier()
-
     override fun Routing.routes() {
         webSocket("/ws") { handleSession() }
     }
 
     private suspend fun WebSocketServerSession.handleSession() {
-        val userId = getUserId() ?: return
+        val conn = WsConnection(this)
 
-        val conn = WsConnection(userId = userId, session = this)
-        service.handle(conn)
+        val user = conn.getUser() ?: return
+        val handler = ClientConnectionHandler(user, conn, service, messageService)
+
+        handler.handleClose()
+        handler.handleCommands()
     }
 
-    // since we can't pass the authorization header in the we connection
-    // we send a first auth command that authenticates the user
-    private suspend fun WebSocketServerSession.getUserId(): UUID? {
+    // since we can't pass the authorization header in the ws connection
+    // so we send first an auth command that authenticates the user
+    private suspend fun ClientConnection.getUser(): UserPrincipal? {
         // get the first authentication command
-        val cmd = incoming.receiveAsFlow()
-            .map { converter!!.deserialize<WsCommand>(it) }
+        val cmd = commands()
             .filterIsInstance<WsCommand.Authenticate>()
             .first()
 
-        val result = Either.catch { verifier.verify(cmd.token) }
+        val result = Either.catch { authService.jwtVerifier.verify(cmd.token) }
 
         return when (result) {
             is Either.Left -> {
@@ -54,7 +54,7 @@ class WsRouter @Inject constructor(
                 close()
                 return null
             }
-            is Either.Right -> authService.createPrincipal(result.value).userId
+            is Either.Right -> authService.getUserFromPayload(result.value)
         }
     }
 }

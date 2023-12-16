@@ -6,7 +6,8 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import java.util.UUID
 
-
+// since UUID is a java type we have to provide a custom serializer
+// for it. For this the UUID is just encoded and decoded as a string
 object UUIDSerializer : KSerializer<UUID> {
     override val descriptor = String.serializer().descriptor
 

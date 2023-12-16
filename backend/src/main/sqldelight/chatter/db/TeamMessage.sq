@@ -1,10 +1,10 @@
 findByTimestamp:
 SELECT *
-FROM TeamChannelMessageEntity
+FROM MessageEntity
 WHERE channelId = :channelId
 AND timestamp < :timestamp
 ORDER BY timestamp DESC
 LIMIT :limit;
 
 create:
-INSERT INTO TeamChannelMessageEntity(id, userId, channelId, type, content, timestamp) VALUES ?;
+INSERT INTO MessageEntity(id, userId, channelId, type, content, timestamp) VALUES ?;

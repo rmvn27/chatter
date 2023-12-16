@@ -1,7 +1,7 @@
 package chatter.lib.cache
 
-import chatter.lib.AppDispatchers
 import chatter.lib.app.AppScope
+import chatter.lib.coroutines.Virtual
 import chatter.lib.log.getValue
 import chatter.lib.service.StatefulService
 import co.touchlab.kermit.Logger
@@ -10,11 +10,15 @@ import com.squareup.anvil.annotations.optional.SingleIn
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
+// connect to a redis instance and expose the async variant of
+// it's commands. While the commands use java's `CompletableFuture`
+// in kotlin we can just await them
 @SingleIn(AppScope::class)
 @ContributesMultibinding(AppScope::class)
 class RedisService @Inject constructor(
@@ -29,7 +33,7 @@ class RedisService @Inject constructor(
         private set
 
 
-    override suspend fun acquire() = withContext(AppDispatchers.io) {
+    override suspend fun acquire() = withContext(Dispatchers.Virtual) {
         logger.i { "Connecting" }
 
         connection = client.connect()

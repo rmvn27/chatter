@@ -1,9 +1,7 @@
 package chatter.models
 
-import chatter.lib.serialization.UUIDSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.UUID
 
 @Serializable
 sealed interface WsCommand {
@@ -43,6 +41,7 @@ sealed interface WsCommand {
     data class SendTextMessage(val message: String) : WsCommand
 }
 
+// in the future we could send the client more notifications than just the messages
 @Serializable
 sealed interface WsEvent {
     // Error happened during the handling of the commands
@@ -54,11 +53,6 @@ sealed interface WsEvent {
     @Serializable
     @SerialName("message")
     data class Message(
-        @Serializable(with = UUIDSerializer::class)
-        val userId: UUID?,
-        val timestamp: Long,
-
-        val content: String,
-        val contentType: String = "text"
+        val message: chatter.models.Message,
     ) : WsEvent
 }

@@ -1,4 +1,4 @@
-package chatter.domain.services.live.client
+package chatter.domain.services.live.connection
 
 import java.util.UUID
 

@@ -19,9 +19,9 @@ typealias RouteContext = PipelineContext<Unit, ApplicationCall>
 // for this the lambda can be an extension function of `Raise<ApplicationError>` which
 // allows for short circuiting errors if they might happen. then the route will just return an error
 //
-// not that we don't implicitly respond of the successful value of the block. to make
+// we don't implicitly respond of the successful value of the block to make
 // sure that the we don't respond with the last value accidentally. instead the caller
-// as to do it explicitly
+// has to do it explicitly
 suspend fun RouteContext.handle(block: suspend Raise<ApplicationError>.() -> Unit) {
     val result = either { block() }
 
@@ -36,6 +36,7 @@ suspend fun ApplicationCall.respondError(error: ApplicationError) {
     respond(buildJsonObject { put("message", error.message) })
 }
 
+// convenience for setting the status
 fun ApplicationCall.status(statusCode: HttpStatusCode) = response.status(statusCode)
 
 // get the parameter out of the request route
@@ -44,9 +45,7 @@ fun ApplicationCall.status(statusCode: HttpStatusCode) = response.status(statusC
 context(Raise<ApplicationError>)
 fun ApplicationCall.getParam(name: String) = parameters[name] ?: raise(ParameterNotFoundError(name))
 
-// get the parameter out of the request route
-// this should usually not fail but there is chance we made a type
-// and then we want to return a internal error
+// error when a required query parameter was not provided
 context(Raise<ApplicationError>)
 fun ApplicationCall.getQueryParam(name: String) =
     request.queryParameters[name] ?: raise(QueryParameterNotFoundError(name))

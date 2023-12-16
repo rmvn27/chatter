@@ -9,6 +9,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.KSerializer
 
+// simple cache variant that just uses simple Key-Value actions
+// the kotlin data is serialized to json
+//
+// - the value can be get, updated and deleted by key
+// - and delete the entire keyspace
 abstract class JsonKVCache<V>(private val redis: RedisService) {
     abstract val prefix: String
     abstract val serializer: KSerializer<V>

@@ -22,6 +22,7 @@ abstract class HttpRoutePlugin<Config : Any> {
     }
 }
 
+// allow to simply install our plugin
 fun <Config : Any> Route.install(
     plugin: HttpRoutePlugin<Config>,
     configure: Config.() -> Unit

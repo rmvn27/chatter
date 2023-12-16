@@ -1,14 +1,13 @@
 package chatter.http.routers
 
-import arrow.core.raise.Raise
-import chatter.domain.services.TeamMessageService
-import chatter.errors.ApplicationError
+import chatter.domain.services.teams.MessageService
 import chatter.http.TeamAuthorizationPlugin
+import chatter.http.channelSlug
 import chatter.http.isTeamOwnerOrParticipant
+import chatter.http.teamSlug
 import chatter.lib.app.AppScope
 import chatter.lib.http.RouteContext
 import chatter.lib.http.config.HttpRouter
-import chatter.lib.http.getParam
 import chatter.lib.http.getQueryParam
 import chatter.lib.http.getQueryParamNullable
 import chatter.lib.http.handle
@@ -21,12 +20,12 @@ import javax.inject.Inject
 
 @ContributesMultibinding(AppScope::class)
 class TeamMessagesRouter @Inject constructor(
-    private val service: TeamMessageService,
+    private val service: MessageService,
     private val authorization: TeamAuthorizationPlugin
 ) : HttpRouter {
     override fun Routing.routes() {
         authenticate {
-            isTeamOwnerOrParticipant(authorization, "teamSlug") {
+            isTeamOwnerOrParticipant(authorization) {
                 get("/teams/{teamSlug}/channels/{channelSlug}/messages") { getMessages() }
             }
         }
@@ -46,13 +45,4 @@ class TeamMessagesRouter @Inject constructor(
 
         call.respond(messages)
     }
-
-    context(Raise<ApplicationError>)
-    private val ApplicationCall.teamSlug
-        get() = getParam("teamSlug")
-
-
-    context(Raise<ApplicationError>)
-    private val ApplicationCall.channelSlug
-        get() = getParam("channelSlug")
 }

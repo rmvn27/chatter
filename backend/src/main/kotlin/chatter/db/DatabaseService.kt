@@ -1,8 +1,8 @@
 package chatter.db
 
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
-import chatter.lib.AppDispatchers
 import chatter.lib.app.AppScope
+import chatter.lib.coroutines.Virtual
 import chatter.lib.log.getValue
 import chatter.lib.service.StatefulService
 import co.touchlab.kermit.Logger
@@ -10,10 +10,10 @@ import com.squareup.anvil.annotations.ContributesMultibinding
 import com.squareup.anvil.annotations.optional.SingleIn
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
-
 
 @SingleIn(AppScope::class)
 @ContributesMultibinding(AppScope::class)
@@ -47,7 +47,7 @@ class DatabaseService @Inject constructor(
         migrationService.migrate()
     }
 
-    override suspend fun release() = withContext(AppDispatchers.io) {
+    override suspend fun release() = withContext(Dispatchers.Virtual) {
         logger.i { "Shutting down" }
         driver.close()
     }

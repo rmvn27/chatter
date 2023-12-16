@@ -12,8 +12,12 @@ version = "1.0-SNAPSHOT"
 
 application { mainClass.set("chatter.MainKt") }
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     compilerOptions {
+        // enable context receivers which are still experimental
+        // but are available for some versions
+        //
+        // https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md
         freeCompilerArgs.add("-Xcontext-receivers")
 
         val optIns = listOf("kotlinx.coroutines.ExperimentalCoroutinesApi")
@@ -28,8 +32,10 @@ sqldelight {
             packageName.set("chatter.db")
             srcDirs("src/main/sqldelight")
 
+            // use postgres
             dialect(libs.sqldelightPostgresDialect)
 
+            // derive db model from the migrations
             verifyMigrations.set(true)
             deriveSchemaFromMigrations.set(true)
         }
@@ -38,7 +44,7 @@ sqldelight {
 
 dependencies {
     implementation(libs.bundles.kotlinx)
-    implementation(libs.bundles.ktorServer)
+    implementation(libs.bundles.ktor)
 
     implementation(libs.bundles.sql)
 

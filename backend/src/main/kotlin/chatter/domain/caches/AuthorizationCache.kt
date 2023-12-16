@@ -1,47 +1,49 @@
 package chatter.domain.caches
 
 import chatter.lib.cache.RedisService
-import chatter.lib.toUUID
+import chatter.lib.serialization.JsonParsers
+import chatter.models.UserPrincipal
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.await
-import java.util.UUID
+import kotlinx.serialization.encodeToString
 import javax.inject.Inject
 
 class AuthorizationCache @Inject constructor(
     private val redis: RedisService
 ) {
-    suspend fun getTeamOwner(teamSlug: String): UUID? {
-        return redis.commands.get(teamOwnerKey(teamSlug)).await()?.let(String::toUUID)
+    private val json = JsonParsers.strict
+
+    suspend fun getTeamOwner(teamSlug: String): UserPrincipal? {
+        return redis.commands.get(teamOwnerKey(teamSlug)).await()?.decodeToUser()
     }
 
-    suspend fun putTeamOwner(teamSlug: String, owner: UUID) {
-        redis.commands.set(teamOwnerKey(teamSlug), owner.toString()).await()
+    suspend fun putTeamOwner(teamSlug: String, owner: UserPrincipal) {
+        redis.commands.set(teamOwnerKey(teamSlug), owner.encode()).await()
     }
 
-
-    suspend fun checkForTeamParticipant(teamSlug: String, user: UUID): Boolean {
+    suspend fun checkForTeamParticipant(teamSlug: String, user: UserPrincipal): Boolean {
         return redis.commands.sismember(
             teamParticipantsKey(teamSlug),
-            user.toString()
+            user.encode()
         ).await()
     }
 
-    suspend fun putTeamParticipant(teamSlug: String, user: UUID) {
+    suspend fun putTeamParticipant(teamSlug: String, user: UserPrincipal) {
         redis.commands.sadd(
             teamParticipantsKey(teamSlug),
-            user.toString()
+            user.encode()
         ).await()
     }
 
-    suspend fun removeParticipant(teamSlug: String, user: UUID) {
+    suspend fun removeParticipant(teamSlug: String, user: UserPrincipal) {
         redis.commands.srem(
             teamParticipantsKey(teamSlug),
-            user.toString()
+            user.encode()
         ).await()
     }
 
-    suspend fun deleteTeam(teamSlug: String) = coroutineScope {
+    suspend fun deleteTeam(teamSlug: String): Unit = coroutineScope {
         val rmTeamOwner = async {
             redis.commands.del(teamOwnerKey(teamSlug)).await()
         }
@@ -56,4 +58,7 @@ class AuthorizationCache @Inject constructor(
 
     private fun teamOwnerKey(slug: String) = "authorization:$slug:teamOwner"
     private fun teamParticipantsKey(slug: String) = "authorization:$slug:participants"
+
+    private fun UserPrincipal.encode() = JsonParsers.strict.encodeToString(this)
+    private fun String.decodeToUser() = JsonParsers.strict.decodeFromString<UserPrincipal>(this)
 }

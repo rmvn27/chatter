@@ -33,7 +33,7 @@ class TeamAuthorizationPlugin @Inject constructor(
     private fun RouteScopedPluginBuilder<Config>.isTeamOwner() {
         // check after a successful authentication
         onWithError(AuthenticationChecked) { call ->
-            val userId = call.userId
+            val userId = call.user
             val teamSlug = call.getParam(pluginConfig.teamSlugParam)
 
             authorization.authorizeTeamOwner(userId, teamSlug).bind()
@@ -43,7 +43,7 @@ class TeamAuthorizationPlugin @Inject constructor(
     private fun RouteScopedPluginBuilder<Config>.isTeamOwnerOrParticipant() {
         // check after a successful authentication
         onWithError(AuthenticationChecked) { call ->
-            val userId = call.userId
+            val userId = call.user
             val teamSlug = call.getParam(pluginConfig.teamSlugParam)
 
             authorization.authorizeTeamOwnerOrParticipant(userId, teamSlug).bind()
@@ -60,12 +60,11 @@ class TeamAuthorizationPlugin @Inject constructor(
     }
 }
 
-// the parameter of for the `teamSlug` has to be provided explicitly
-// to make sure the right one is always picked up and each router
-// can define it however it wants
+// the parameter for the teamSlug can be changed to make sure
+// that every router could define it however it wants but doesn't need to
 fun Route.isTeamOwner(
     plugin: TeamAuthorizationPlugin,
-    teamSlugParam: String,
+    teamSlugParam: String = "teamSlug",
     block: Route.() -> Unit
 ) = withPlugin(plugin, block) {
     this.teamSlugParam = teamSlugParam
@@ -74,7 +73,7 @@ fun Route.isTeamOwner(
 
 fun Route.isTeamOwnerOrParticipant(
     plugin: TeamAuthorizationPlugin,
-    teamSlugParam: String,
+    teamSlugParam: String = "teamSlug",
     block: Route.() -> Unit
 ) = withPlugin(plugin, block) {
     this.teamSlugParam = teamSlugParam

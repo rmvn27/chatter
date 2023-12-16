@@ -1,16 +1,17 @@
 findByTeamId:
 SELECT *
-FROM TeamChannelEntity
-WHERE teamId = :teamId;
+FROM ChannelEntity
+WHERE teamId = :teamId
+ORDER BY name ASC;
 
 findByTeamAndSlug:
 SELECT *
-FROM TeamChannelEntity
+FROM ChannelEntity
 WHERE teamId = :teamId
 AND slug = :slug;
 
 create:
-INSERT INTO TeamChannelEntity(id, teamId, name, slug) VALUES ?;
+INSERT INTO ChannelEntity(id, teamId, name, slug) VALUES ?;
 
 deleteById:
-DELETE FROM TeamChannelEntity WHERE id = :id;
+DELETE FROM ChannelEntity WHERE id = :id;

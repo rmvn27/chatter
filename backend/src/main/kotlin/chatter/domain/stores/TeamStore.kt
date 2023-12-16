@@ -5,6 +5,7 @@ import chatter.TeamEntity
 import chatter.db.TeamQueries
 import chatter.db.asList
 import chatter.db.asOne
+import chatter.db.asOneInfallible
 import chatter.db.insert
 import chatter.db.withDb
 import chatter.errors.TeamNotFoundError
@@ -23,6 +24,8 @@ class TeamStore @Inject constructor(
     suspend fun findForOwner(ownerId: UUID) = queries.findForOwner(ownerId).asList()
 
     suspend fun findSharedForUser(userId: UUID) = queries.findSharedForUser(userId).asList()
+
+    suspend fun findByIdInfallible(id: UUID) = queries.findById(id).asOneInfallible()
 
     suspend fun findBySlug(slug: String) = either {
         queries.findBySlug(slug).asOne { TeamNotFoundError(slug) }

@@ -1,7 +1,7 @@
 package chatter.lib.http
 
-import chatter.lib.AppDispatchers
 import chatter.lib.app.AppScope
+import chatter.lib.coroutines.Virtual
 import chatter.lib.http.config.HttpApplicationConfig
 import chatter.lib.http.config.HttpRouterConfiguration
 import chatter.lib.log.getValue
@@ -11,10 +11,10 @@ import com.squareup.anvil.annotations.ContributesMultibinding
 import com.squareup.anvil.annotations.optional.SingleIn
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
-
 
 @SingleIn(AppScope::class)
 @ContributesMultibinding(AppScope::class)
@@ -27,10 +27,7 @@ class HttpServer @Inject constructor(
     private val logger by Logger
 
     override suspend fun acquire() {
-        // we just use here the base `CIO` engine
-        // which should be enough for our case
-        // but in a real world scenario be switched out with
-        // something like `Netty`
+        // use the async `Netty` engine for the server
         server = embeddedServer(
             Netty,
             host = config.host,
@@ -45,12 +42,12 @@ class HttpServer @Inject constructor(
         }
     }
 
-    override suspend fun start(): Unit = withContext(AppDispatchers.io) {
+    override suspend fun start(): Unit = withContext(Dispatchers.Virtual) {
         logger.i { "Listening for connections on: ${config.host}:${config.port}" }
         server?.start(wait = false)
     }
 
-    override suspend fun release() = withContext(AppDispatchers.io) {
+    override suspend fun release() = withContext(Dispatchers.Virtual) {
         logger.i { "Shutting down" }
         // use a longer grace period
         server?.stop(

@@ -1,9 +1,10 @@
-package chatter.lib
+package chatter.lib.coroutines
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 // safely store data in a thread sync manner
+// and only access it after the lock was acquired
 data class Locked<T>(
     private var lockData: T,
     private val mutex: Mutex = Mutex()
@@ -18,7 +19,3 @@ data class Locked<T>(
         action(lockData)
     }
 }
-
-suspend fun <T> Locked<T?>.getOrPut(
-    block: suspend () -> T
-) = update { it ?: block() }

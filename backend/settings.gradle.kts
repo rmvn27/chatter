@@ -2,6 +2,7 @@
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
+// plugin sources for `settings.gradle.kts`
 pluginManagement {
     repositories {
         mavenCentral()
@@ -9,11 +10,10 @@ pluginManagement {
     }
 }
 
+// package sources for `build.gradle.kts`
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        mavenCentral()
-    }
+    repositories { mavenCentral() }
 
     versionCatalogs {
         create("libs") {

@@ -1,9 +1,9 @@
 package chatter.http
 
+import chatter.domain.services.auth.AuthenticationService
 import chatter.lib.app.AppScope
 import chatter.lib.http.config.HttpApplicationConfig
 import chatter.models.UserPrincipal
-import chatter.domain.services.auth.AuthenticationService
 import com.squareup.anvil.annotations.ContributesMultibinding
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -17,10 +17,16 @@ class HttpAuthenticationConfig @Inject constructor(
 ) : HttpApplicationConfig {
     override fun Application.configure() {
         install(Authentication) {
-            jwt { authService.createJwtAuthentication() }
+            jwt {
+                realm = authService.configRealm
+
+                verifier(authService.jwtVerifier)
+
+                validate { authService.getUserFromPayload(it.payload) }
+            }
         }
     }
 }
 
 // if we are authenticated we certainly have a `UserPrincipal` and shouldn't get a NPE
-val ApplicationCall.userId get() = principal<UserPrincipal>()!!.userId
+val ApplicationCall.user get() = principal<UserPrincipal>()!!

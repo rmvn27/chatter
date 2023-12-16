@@ -73,7 +73,7 @@ export class MessagesState {
           //
           // otherwise prepending would have been more performant
           this.setLiveMessages((prev) => {
-            prev.unshift(e);
+            prev.unshift(e.message);
             return prev;
           });
         }

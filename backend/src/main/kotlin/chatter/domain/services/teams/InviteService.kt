@@ -1,19 +1,19 @@
-package chatter.domain.services
+package chatter.domain.services.teams
 
 import arrow.core.raise.either
+import chatter.InviteEntity
 import chatter.TeamEntity
-import chatter.TeamInviteEntity
 import chatter.db.TeamInviteQueries
 import chatter.db.asList
 import chatter.db.asOptional
 import chatter.db.withDb
 import chatter.domain.stores.TeamStore
 import chatter.errors.InvalidTeamInviteError
-import chatter.models.TeamInvite
+import chatter.models.Invite
 import java.util.UUID
 import javax.inject.Inject
 
-class TeamInviteService @Inject constructor(
+class InviteService @Inject constructor(
     private val queries: TeamInviteQueries,
     private val teamStore: TeamStore
 ) {
@@ -24,7 +24,7 @@ class TeamInviteService @Inject constructor(
 
         queries.findByTeam(team.id)
             .asList()
-            .map { TeamInvite(it.invite) }
+            .map { Invite(it.invite) }
     }
 
     // a user can claim an invite to join the team
@@ -39,10 +39,10 @@ class TeamInviteService @Inject constructor(
 
     suspend fun create(teamSlug: String) = either {
         val team = teamStore.findBySlug(teamSlug).bind()
-        val invite = TeamInvite(UUID.randomUUID())
+        val invite = Invite(UUID.randomUUID())
 
         withDb {
-            val entity = TeamInviteEntity(
+            val entity = InviteEntity(
                 invite = invite.invite,
                 teamId = team.id
             )

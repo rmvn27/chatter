@@ -1,10 +1,13 @@
+findById:
+SELECT * FROM TeamEntity WHERE id = :id;
+
 findForOwner:
 SELECT * FROM TeamEntity WHERE ownerId = :ownerId;
 
 findSharedForUser:
 SELECT team.*
 FROM TeamEntity team
-JOIN TeamParticipantEntity tp
+JOIN ParticipantEntity tp
 ON team.id = tp.teamId
 AND tp.userId = :userId;
 

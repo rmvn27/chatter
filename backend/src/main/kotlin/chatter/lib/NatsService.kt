@@ -1,6 +1,7 @@
 package chatter.lib
 
 import chatter.lib.app.AppScope
+import chatter.lib.coroutines.Virtual
 import chatter.lib.log.getValue
 import chatter.lib.serialization.JsonParsers
 import chatter.lib.service.StatefulService
@@ -9,9 +10,9 @@ import com.squareup.anvil.annotations.ContributesMultibinding
 import com.squareup.anvil.annotations.optional.SingleIn
 import io.nats.client.Connection
 import io.nats.client.Dispatcher
-import io.nats.client.Message
 import io.nats.client.Nats
 import io.nats.client.Options
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -21,8 +22,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import java.time.Duration
+import java.util.concurrent.Executors
 import javax.inject.Inject
 
+// connection to the pub sub system
+//
+// the api was a bit transformed to be more idiomatic with kotlin
 @SingleIn(AppScope::class)
 @ContributesMultibinding(AppScope::class)
 class NatsService @Inject constructor(
@@ -35,11 +40,16 @@ class NatsService @Inject constructor(
     lateinit var connection: Connection
         private set
 
+    // save the created dispatcher so they can be
+    // disposed when the `NatsService` is released
+    //
+    // With this we don't have to manage each individual
+    // lifecycle of each dispatcher
     val dispatchers = mutableSetOf<Dispatcher>()
 
     // convert the callback api to a flow, that emits liveMessages
-    inline fun <reified T> messages(subject: String): Flow<Message<T>> {
-        val msgFlow = callbackFlow {
+    inline fun <reified T> messages(subject: String): Flow<T> {
+        return callbackFlow {
             val dispatcher = connection.createDispatcher {
                 trySend(it)
             }.also(dispatchers::add)
@@ -47,25 +57,23 @@ class NatsService @Inject constructor(
             dispatcher.subscribe(subject)
 
             awaitClose { closeDispatcher(dispatcher) }
-        }
-
-        return msgFlow.map {
-            Message(
-                it.subject,
-                json.decodeFromString<T>(it.data.toString(Charsets.UTF_8))
-            )
+        }.map {
+            val stringData = it.data.toString(Charsets.UTF_8)
+            json.decodeFromString<T>(stringData)
         }
     }
 
+    // publish the data as a json encoded string
     inline fun <reified T> publish(subject: String, data: T) {
         connection.publish(subject, json.encodeToString(data).toByteArray(Charsets.UTF_8))
     }
 
-    override suspend fun acquire() = withContext(AppDispatchers.io) {
+    override suspend fun acquire() = withContext(Dispatchers.Virtual) {
         logger.i { "Connecting" }
         val options = Options.Builder().apply {
             server(config.server)
             maxReconnects(config.reconnects)
+            executor(Executors.newVirtualThreadPerTaskExecutor())
         }.build()
 
         connection = Nats.connect(options)
@@ -84,11 +92,6 @@ class NatsService @Inject constructor(
         connection.closeDispatcher(dispatcher)
         dispatchers.remove(dispatcher)
     }
-
-    data class Message<T>(
-        val subject: String,
-        val data: T
-    )
 
     @Serializable
     data class Config(

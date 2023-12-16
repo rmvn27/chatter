@@ -1,11 +1,11 @@
 findByTeam:
-SELECT * FROM TeamInviteEntity WHERE teamId = :teamId;
+SELECT * FROM InviteEntity WHERE teamId = :teamId;
 
 findByInvite:
-SELECT * FROM TeamInviteEntity WHERE invite = :invite AND teamId = :teamId;
+SELECT * FROM InviteEntity WHERE invite = :invite AND teamId = :teamId;
 
 create:
-INSERT INTO TeamInviteEntity VALUES ?;
+INSERT INTO InviteEntity VALUES ?;
 
 delete:
-DELETE FROM TeamInviteEntity WHERE invite = :invite;
+DELETE FROM InviteEntity WHERE invite = :invite;
