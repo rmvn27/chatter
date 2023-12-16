@@ -3,22 +3,18 @@ import { createServices, type Services } from "@/services";
 import { ServicesProvider } from "@/signals/services";
 import { Router, useRoutes } from "@solidjs/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
-import {
-  createEffect,
-  createMemo,
-  type Component,
-  type ParentComponent,
-} from "solid-js";
+import { createMemo, onMount, type Component, type ParentComponent } from "solid-js";
 
 export const App: Component = () => {
   const services = createMemo(() => createServices());
   const queryClient = createMemo(() => new QueryClient());
 
-  createEffect(() => {
+  onMount(() => {
     services().token.setupTokens();
   });
 
-  const Routes = useRoutes(appRoutes);
+  // call to `appRoutes` here is fine since this component is callted exeactly one time
+  const Routes = useRoutes(appRoutes());
 
   return (
     <AppProviders queryClient={queryClient()} services={services()}>

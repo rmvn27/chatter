@@ -1,8 +1,9 @@
 import { AddTeamModal } from "@/components/app/AddTeamModal";
-import { AppShell } from "@/components/app/AppShell";
+import { AppSidebar } from "@/components/app/sidebar/AppSidebar";
 import type { RouteComponent, RouteData } from "@/lib/route.types";
 import { AppShellState } from "@/signals/app/appShellState";
 import { createAuthGuard } from "@/signals/auth/authGuard";
+import { Outlet } from "@solidjs/router";
 import { createEffect } from "solid-js";
 import { z } from "zod";
 
@@ -24,7 +25,13 @@ export const Route: RouteComponent<typeof routeData> = (props) => {
 
   return (
     <>
-      <AppShell shellState={state()} />
+      <div class="w-full h-full flex flex-row">
+        <AppSidebar shell={state()} />
+
+        <div class="w-full">
+          <Outlet />
+        </div>
+      </div>
 
       <AddTeamModal opened={state().addTeamModalToggle} />
     </>

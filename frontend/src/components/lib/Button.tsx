@@ -1,9 +1,8 @@
-import { A } from "@solidjs/router";
 import type { Component } from "solid-js";
 
 type TextButtonProps = {
   children: string;
-  size?: "lg" | "md" | "sm" | "xs";
+  size?: "md" | "sm" | "xs";
   style?: "default" | "highlight" | "neg" | "pos";
   onClick?: () => void;
   type?: "submit" | "reset" | "button";
@@ -17,10 +16,6 @@ const textButtonColorMap = {
 };
 
 const textButtonSizeMap = {
-  lg: {
-    shape: "py-2 px-3 rounded-lg",
-    text: "text-2xl font-semibold",
-  },
   md: {
     shape: "py-2 px-3 rounded-lg",
     text: "text-xl font-semibold",
@@ -90,22 +85,6 @@ export const IconButton = (props: IconButtonProps) => {
     >
       <div class={`${icon} ${props.icon}`} />
     </button>
-  );
-};
-
-type NavIconButtonProps = {
-  icon: string;
-  route: string;
-  size?: "sm" | "md";
-};
-
-export const NavIconButton = (props: NavIconButtonProps) => {
-  const { button, icon } = iconButtonClasses(props.size ?? "md", true);
-
-  return (
-    <A href={props.route} class={button}>
-      <div class={`${props.icon} ${icon}`} />
-    </A>
   );
 };
 

@@ -33,10 +33,7 @@ export const TeamSidebarIcon: Component<Props> = (props) => {
   };
   return (
     <button
-      onClick={(e) => {
-        e.stopPropagation();
-        nav(navigationRoutes.team(props.team.slug).base);
-      }}
+      onClick={() => nav(navigationRoutes.team(props.team.slug).base)}
       class={`${baseButtonProps} ${colorButtonProps()}`}
     >
       <span class="text-lg font-semibold text-zinc-300 w-8 h-8">{iconText()}</span>

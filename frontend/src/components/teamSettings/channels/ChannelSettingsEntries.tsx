@@ -1,5 +1,5 @@
 import { TextButton } from "@/components/lib/Button";
-import { TeamChannel } from "@/models/channels";
+import { Channel } from "@/models/channels";
 import { ChannelSettingsState } from "@/signals/teamSettings/channelSettingsState";
 import { Component, For } from "solid-js";
 
@@ -23,7 +23,7 @@ export const ChannelSettingsEntries: Component<Props> = (props) => {
 };
 
 type EntryProps = {
-  channel: TeamChannel;
+  channel: Channel;
   onDelete: () => void;
 };
 
@@ -31,7 +31,7 @@ const ChannelEntry: Component<EntryProps> = (props) => {
   const layoutProps = "py-2 flex flex-row justify-between items-center";
 
   return (
-    <div class={`${layoutProps} border-b-1 border-zinc-300/10`}>
+    <div class={`${layoutProps} border-b-1 border-zinc-700`}>
       <span class="text-md font-regular text-zinc-300/75">{props.channel.name}</span>
 
       <TextButton size="xs" style="neg" onClick={props.onDelete}>

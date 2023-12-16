@@ -18,9 +18,9 @@ import {
 } from "@/models/teams";
 import { z } from "zod";
 
-type TeamSlugProps = {
-  teamSlug: string;
-};
+type TeamSlugProps = { teamSlug: string };
+
+const createTeamsInvalidation = () => createQueryInvalidation(queryKeys.allTeams);
 
 export const teamsQuery: QueryFn<Team[]> = ({ onSuccess }) => {
   const queryFn = () => getJson(apiPaths.teams.base, team.array());
@@ -28,25 +28,24 @@ export const teamsQuery: QueryFn<Team[]> = ({ onSuccess }) => {
   return createBaseQuery({
     onSuccess,
     queryFn,
-    queryKey: queryKeys.teams.all,
+    queryKey: queryKeys.allTeams,
   });
 };
 
 export const teamQuery: QueryFn<Team, TeamSlugProps> = ({ onSuccess, teamSlug }) => {
-  const queryFn = () => getJson(apiPaths.teams.bySlug(teamSlug).details, team);
+  const queryFn = () => getJson(apiPaths.teams.bySlug(teamSlug), team);
 
   return createBaseQuery({
     onSuccess,
     queryFn,
-    queryKey: queryKeys.teams.bySlug(teamSlug).base,
+    queryKey: queryKeys.team(teamSlug),
   });
 };
 
 export const createTeamMutation: MutationFn<CreateTeamForm, unknown> = ({
   onSuccess,
 }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.all);
-
+  const invalidate = createTeamsInvalidation();
   const mutationFn = (form: CreateTeamForm) =>
     postJson(apiPaths.teams.base, z.unknown(), form);
 
@@ -58,12 +57,11 @@ export const createTeamMutation: MutationFn<CreateTeamForm, unknown> = ({
 };
 
 export const joinTeamMutation: MutationFn<JoinTeamForm, unknown> = ({ onSuccess }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.all);
-
+  const invalidate = createTeamsInvalidation();
   const mutationFn = (form: JoinTeamForm) => {
     const [teamSlug, invite] = form.invite.split("@");
 
-    return postJson(apiPaths.teams.bySlug(teamSlug as string).join, z.unknown(), {
+    return postJson(apiPaths.teams.join(teamSlug as string), z.unknown(), {
       invite,
     });
   };
@@ -79,10 +77,8 @@ export const leaveTeamMutation: MutationFn<undefined, unknown, TeamSlugProps> = 
   onSuccess,
   teamSlug,
 }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.all);
-
-  const mutationFn = () =>
-    postJson(apiPaths.teams.bySlug(teamSlug).leave, z.unknown(), {});
+  const invalidate = createTeamsInvalidation();
+  const mutationFn = () => postJson(apiPaths.teams.leave(teamSlug), z.unknown(), {});
 
   return createBaseMutation({
     onSuccess: withOnSuccess(onSuccess, invalidate),
@@ -95,10 +91,9 @@ export const updateTeamMutation: MutationFn<UpdateTeamForm, unknown, TeamSlugPro
   teamSlug,
   onSuccess,
 }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.all);
-
+  const invalidate = createTeamsInvalidation();
   const mutationFn = (form: UpdateTeamForm) =>
-    patchJson(apiPaths.teams.bySlug(teamSlug).details, z.unknown(), form);
+    patchJson(apiPaths.teams.bySlug(teamSlug), z.unknown(), form);
 
   return createBaseMutation({
     onSuccess: withOnSuccess(onSuccess, invalidate),
@@ -111,10 +106,8 @@ export const deleteTeamMutation: MutationFn<undefined, unknown, TeamSlugProps> =
   teamSlug,
   onSuccess,
 }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.all);
-
-  const mutationFn = () =>
-    deleteJson(apiPaths.teams.bySlug(teamSlug).details, z.unknown());
+  const invalidate = createTeamsInvalidation();
+  const mutationFn = () => deleteJson(apiPaths.teams.bySlug(teamSlug), z.unknown());
 
   return createBaseMutation({
     onSuccess: withOnSuccess(onSuccess, invalidate),

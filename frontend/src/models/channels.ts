@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { nonEmptyString } from "./common";
 
-export type TeamChannel = z.infer<typeof teamChannel>;
-export const teamChannel = z.object({
+export type Channel = z.infer<typeof channel>;
+export const channel = z.object({
   id: z.string(),
   name: z.string(),
   slug: z.string(),

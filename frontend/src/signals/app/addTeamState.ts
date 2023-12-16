@@ -4,8 +4,9 @@ import { createMemo } from "solid-js";
 import { createTeamMutation, joinTeamMutation } from "../api/teams";
 
 export class AddTeamState {
-  static create = (toggleSignal: ToggleSignal) =>
-    createMemo(() => new AddTeamState(toggleSignal));
+  static create = (toggleSignal: ToggleSignal) => {
+    return createMemo(() => new AddTeamState(toggleSignal));
+  };
 
   private createMuation;
   private joinMutation;

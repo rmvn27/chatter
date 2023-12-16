@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export type DisplayTeamMessage = {
+export type PrettifiedMessage = {
   username: string;
   date: string;
 
@@ -14,8 +14,8 @@ const messageContent = z
   })
   .transform((d) => d.content);
 
-export type TeamMessage = z.infer<typeof teamMessage>;
-export const teamMessage = z.object({
+export type Message = z.infer<typeof message>;
+export const message = z.object({
   content: messageContent,
 
   userId: z.string().optional(),

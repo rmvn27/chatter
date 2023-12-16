@@ -1,4 +1,4 @@
-import { Card } from "@/components/layout/Card";
+import { Card } from "@/components/lib/Card";
 import { ChannelSettingsState } from "@/signals/teamSettings/channelSettingsState";
 import { Component } from "solid-js";
 import { ChannelSettingsEntries } from "./ChannelSettingsEntries";

@@ -1,4 +1,4 @@
-import { TeamState } from "@/signals/team/teamState";
+import { TeamState } from "@/signals/teamState";
 import { Component } from "solid-js";
 import { TeamSidebarChannels } from "./TeamSidebarChannels";
 import { TeamSidebarControls } from "./TeamSidebarControls";

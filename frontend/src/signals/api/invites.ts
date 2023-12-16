@@ -12,19 +12,17 @@ import {
 import { TeamInvite, teamInvite } from "@/models/teams";
 import { z } from "zod";
 
-type TeamSlugProps = {
-  teamSlug: string;
-};
+type TeamSlugProps = { teamSlug: string };
+
+const createInvitesInvalidation = (teamSlug: string) =>
+  createQueryInvalidation(queryKeys.invites(teamSlug));
 
 export const invitesQuery: QueryFn<TeamInvite[], TeamSlugProps> = ({
   onSuccess,
   teamSlug,
 }) => {
   const queryFn = async () => {
-    const data = await getJson(
-      apiPaths.teams.bySlug(teamSlug).invites.base,
-      teamInvite.array(),
-    );
+    const data = await getJson(apiPaths.invites(teamSlug).base, teamInvite.array());
 
     // prepend the team slug for later api access
     // and easier ux for the user
@@ -34,7 +32,7 @@ export const invitesQuery: QueryFn<TeamInvite[], TeamSlugProps> = ({
   return createBaseQuery({
     onSuccess,
     queryFn,
-    queryKey: queryKeys.teams.bySlug(teamSlug).invites,
+    queryKey: queryKeys.invites(teamSlug),
   });
 };
 
@@ -42,10 +40,8 @@ export const createInviteMutation: MutationFn<unknown, unknown, TeamSlugProps> =
   onSuccess,
   teamSlug,
 }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.bySlug(teamSlug).invites);
-
-  const mutationFn = () =>
-    postJson(apiPaths.teams.bySlug(teamSlug).invites.base, z.unknown(), {});
+  const invalidate = createInvitesInvalidation(teamSlug);
+  const mutationFn = () => postJson(apiPaths.invites(teamSlug).base, z.unknown(), {});
 
   return createBaseMutation({
     onSuccess: withOnSuccess(onSuccess, invalidate),
@@ -58,14 +54,10 @@ export const deleteInviteMuation: MutationFn<string, unknown, TeamSlugProps> = (
   onSuccess,
   teamSlug,
 }) => {
-  const invalidate = createQueryInvalidation(queryKeys.teams.bySlug(teamSlug).invites);
-
+  const invalidate = createInvitesInvalidation(teamSlug);
   const mutationFn = (id: string) => {
     const [, invite] = id.split("@");
-    return deleteJson(
-      apiPaths.teams.bySlug(teamSlug).invites.withId(invite as string),
-      z.unknown(),
-    );
+    return deleteJson(apiPaths.invites(teamSlug).withId(invite as string), z.unknown());
   };
 
   return createBaseMutation({

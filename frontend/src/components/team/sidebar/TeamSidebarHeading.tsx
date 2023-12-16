@@ -7,7 +7,7 @@ type Props = {
 
 export const TeamSidebarHeading: Component<Props> = (props) => {
   const textClasses = "text-xl font-medium text-zinc-300 select-none";
-  const borderClasses = "pb-1 border-b border-zinc-300/10";
+  const borderClasses = "pb-1 border-b border-zinc-700";
 
   return (
     <Show when={props.team !== undefined}>

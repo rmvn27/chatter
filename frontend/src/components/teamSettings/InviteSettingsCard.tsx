@@ -1,7 +1,7 @@
 import { InviteSettingsState } from "@/signals/teamSettings/inviteSettingsState";
 import { Component, For } from "solid-js";
-import { BaseCard } from "../layout/Card";
 import { TextButton } from "../lib/Button";
+import { BaseCard } from "../lib/Card";
 
 type Props = {
   state: InviteSettingsState;
@@ -36,7 +36,7 @@ export const InviteEntry: Component<EntryProps> = (props) => {
   const layoutProps = "py-2 flex flex-row justify-between items-center";
 
   return (
-    <div class={`${layoutProps} border-b-1 border-zinc-300/10`}>
+    <div class={`${layoutProps} border-b-1 border-zinc-700`}>
       <span class="text-md font-regular text-zinc-300/75">{props.invite}</span>
 
       <TextButton size="xs" style="neg" onClick={props.onDelete}>

@@ -1,10 +1,6 @@
 import { z } from "zod";
 import { nonEmptyString } from "./common";
 
-export type TeamColor = "red" | "green" | "teal" | "blue" | "purple";
-
-export const teamColors: TeamColor[] = ["red", "green", "teal", "blue", "purple"];
-
 export type Team = z.infer<typeof team>;
 export const team = z.object({
   id: z.string(),
@@ -14,8 +10,8 @@ export const team = z.object({
   isOwner: z.boolean(),
 });
 
-export type TeamParticipant = z.infer<typeof teamParticipant>;
-export const teamParticipant = z.object({
+export type Participant = z.infer<typeof participant>;
+export const participant = z.object({
   id: z.string(),
   username: z.string(),
   name: z.string(),

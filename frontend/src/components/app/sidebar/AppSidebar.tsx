@@ -8,7 +8,7 @@ type Props = {
   shell: AppShellState;
 };
 
-export const Sidebar: Component<Props> = (props) => {
+export const AppSidebar: Component<Props> = (props) => {
   const teams = (
     <For each={props.shell.teams}>
       {(t) => <TeamSidebarIcon team={t} selected={t.slug == props.shell.teamSlug()} />}

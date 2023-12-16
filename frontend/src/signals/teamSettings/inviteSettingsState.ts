@@ -11,9 +11,9 @@ export class InviteSettingsState {
     return createMemo(() => new InviteSettingsState(teamSlug()));
   };
 
-  private invitesQuery;
-  private createMutation;
-  private deleteMutation;
+  private readonly invitesQuery;
+  private readonly createMutation;
+  private readonly deleteMutation;
 
   private constructor(teamSlug: string) {
     this.invitesQuery = invitesQuery({ teamSlug });
