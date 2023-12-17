@@ -1,0 +1,15 @@
+{
+  "auth": {
+    "jwtSecret": "<random string>"
+  },
+  "db": {
+    "password": "<password to the postgres db>",
+    "host": "db"
+  },
+  "redis": {
+    "url": "redis://redis:6379"
+  },
+  "nats": {
+    "url": "nats://localhost:4222"
+  }
+}
