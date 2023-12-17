@@ -1,11 +1,14 @@
 package chatter.domain.services.teams
 
 import arrow.core.raise.either
+import chatter.db.display
 import chatter.domain.caches.AuthorizationCache
 import chatter.domain.stores.TeamStore
+import chatter.lib.log.getValue
 import chatter.models.Team
 import chatter.models.UserPrincipal
 import chatter.models.toDomain
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.util.UUID
@@ -17,6 +20,8 @@ class TeamService @Inject constructor(
     private val inviteService: InviteService,
     private val cache: AuthorizationCache
 ) {
+    private val logger by Logger
+
     // hard to cache since we have also here shared teams
     // and when we cache a list of teams we can't know if a share
     // one got updated for a user. So keep it as it is for now
@@ -62,17 +67,25 @@ class TeamService @Inject constructor(
     suspend fun create(
         user: UserPrincipal,
         name: String,
-    ) = store.create(name, user.userId)
-        .toDomain(true)
+    ): Team {
+        val teamEntity = store.create(name, user.userId)
+
+        logger.d { "Created ${teamEntity.display()}" }
+
+        return teamEntity.toDomain(true)
+    }
 
     suspend fun update(user: UserPrincipal, teamSlug: String, name: String?) = either {
         store.update(teamSlug = teamSlug, name = name)
             .bind()
             .toDomain(user)
+
+        logger.d { "Updated Team($teamSlug)" }
     }
 
     suspend fun delete(slug: String) {
         store.deleteBySlug(slug)
         cache.deleteTeam(slug)
+        logger.d { "Deleted Team($slug)" }
     }
 }

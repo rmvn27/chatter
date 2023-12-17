@@ -10,7 +10,9 @@ import chatter.db.withDb
 import chatter.domain.services.teams.ParticipantService
 import chatter.errors.UserAlreadyExistsError
 import chatter.lib.app.AppScope
+import chatter.lib.log.getValue
 import chatter.models.UserPrincipal
+import co.touchlab.kermit.Logger
 import com.squareup.anvil.annotations.optional.SingleIn
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.util.UUID
@@ -23,11 +25,12 @@ class UserService @Inject constructor(
     private val queries: UserQueries,
     private val participantService: ParticipantService
 ) {
+    private val logger by Logger
+
     // use the `PasswordEncoder` from spring for a simpler interface to bouncy castle
     // this has no other dependencies to other spring packages
     private val passwordEncoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
 
-    suspend fun findByIdInfallible(id: UUID) = queries.findById(id).asOneInfallible()
     suspend fun findByUsername(username: String) = queries.findByUsername(username).asOptional()
 
     suspend fun create(
@@ -37,12 +40,16 @@ class UserService @Inject constructor(
         // check for user with the same username
         if (findByUsername(username) != null) raise(UserAlreadyExistsError(username))
 
-        UserEntity(
+        val entity = UserEntity(
             id = UUID.randomUUID(),
             username = username,
             displayName = username,
             password = passwordEncoder.encode(password)
         ).insert(queries::insert)
+
+        logger.d { "Created user: User(${entity.id}, ${entity.username})" }
+
+        entity
     }
 
     fun verifyPassword(user: UserEntity, providedPassword: String) =
@@ -76,11 +83,15 @@ class UserService @Inject constructor(
 
             participantService.handleUserChange(userPrincipal)
         }
+
+        logger.d { "Deleted user with id: ${userPrincipal.userId}" }
     }
 
     suspend fun delete(user: UserPrincipal) {
         withDb { queries.delete(user.userId) }
 
         participantService.handleUserChange(user)
+
+        logger.d { "Deleted user with id: ${user.userId}" }
     }
 }

@@ -12,13 +12,6 @@ import kotlinx.coroutines.flow.Flow
 //
 // the client connection should represent a connected live client to the server
 interface ClientConnection {
-//    // the current connected user
-//    val user: UserPrincipal
-//
-//    // `suspend` is needed to make the state thread safe
-//    suspend fun state(): ClientConnectionState
-//    suspend fun <T : ClientConnectionState> setState(newState: suspend (ClientConnectionState) -> T): T
-
     // flow of commands that can be received from the client
     fun commands(): Flow<WsCommand>
 

@@ -3,11 +3,14 @@ package chatter.domain.services.auth
 import arrow.core.raise.either
 import chatter.db.TeamParticipantQueries
 import chatter.db.asOptional
+import chatter.db.display
 import chatter.domain.caches.AuthorizationCache
 import chatter.domain.stores.TeamStore
 import chatter.errors.UserHasNoAccessToTeamError
 import chatter.errors.UserIsNotTeamOwnerError
+import chatter.lib.log.getValue
 import chatter.models.UserPrincipal
+import co.touchlab.kermit.Logger
 import javax.inject.Inject
 
 class AuthorizationService @Inject constructor(
@@ -15,6 +18,8 @@ class AuthorizationService @Inject constructor(
     private val queries: TeamParticipantQueries,
     private val cache: AuthorizationCache
 ) {
+    private val logger by Logger
+
     suspend fun authorizeTeamOwner(user: UserPrincipal, teamSlug: String) = either {
         val teamOwner = getTeamOwner(teamSlug).bind()
         if (teamOwner != user) raise(UserIsNotTeamOwnerError)
@@ -38,6 +43,7 @@ class AuthorizationService @Inject constructor(
         // the user is a participant => success
         if (maybeParticipant != null) {
             cache.putTeamParticipant(teamSlug, user)
+            logger.d { "Authorized ${user.display()} as participant for ${team.display()}" }
             return@either
         }
 
@@ -52,6 +58,8 @@ class AuthorizationService @Inject constructor(
         // the get from db and put in cache
         val team = teamStore.findBySlug(teamSlug).bind()
         val owner = UserPrincipal(team.ownerId)
+
+        logger.d { "Authorized ${owner.display()} as owner for ${team.display()}" }
 
         cache.putTeamOwner(teamSlug, owner)
 

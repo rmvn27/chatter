@@ -1,6 +1,7 @@
 package chatter.domain.services.live
 
 import arrow.core.raise.either
+import chatter.db.display
 import chatter.domain.services.auth.AuthorizationService
 import chatter.domain.services.live.rooms.TeamRoom
 import chatter.domain.services.teams.ChannelService
@@ -39,6 +40,8 @@ class RoomService @Inject constructor(
     suspend fun getTeamRoom(teamId: UUID) = teamRooms.withLock {
         it.getOrPut(teamId) {
             val team = teamStore.findByIdInfallible(teamId)
+            logger.d { "Creating new TeamRoom for ${team.display()}" }
+
             TeamRoom(team, channelService, messageService, authService, teamEventsService)
         }
     }

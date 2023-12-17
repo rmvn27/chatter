@@ -2,6 +2,7 @@ package chatter.domain.services.live.rooms
 
 import arrow.core.raise.either
 import chatter.TeamEntity
+import chatter.db.display
 import chatter.domain.services.auth.AuthorizationService
 import chatter.domain.services.live.connection.ClientConnectionHandler
 import chatter.domain.services.teams.ChannelService
@@ -9,10 +10,12 @@ import chatter.domain.services.teams.MessageService
 import chatter.domain.services.teams.TeamEventsService
 import chatter.lib.coroutines.Locked
 import chatter.lib.coroutines.collectInScope
+import chatter.lib.log.getValue
 import chatter.models.ChannelListChangedEvent
 import chatter.models.ParticipantListChangedEvent
 import chatter.models.TeamEvent
 import chatter.models.WsEvent
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -29,8 +32,6 @@ class TeamRoom(
     private val authService: AuthorizationService,
     teamEventsService: TeamEventsService
 ) {
-    val teamId = team.id
-
     // each team has it's own coroutine scope for async actions
     // that is also shared with the rooms for a team
     private val scope = CoroutineScope(SupervisorJob())
@@ -39,16 +40,24 @@ class TeamRoom(
     private val connections = Locked(mutableSetOf<ClientConnectionHandler>())
     private val channels = Locked(mutableMapOf<UUID, ChannelRoom>())
 
+    private val logger by Logger
+
+
+    val teamId = team.id
+
     init {
-        teamEventsService.eventsForTeam(teamId)
+        teamEventsService.eventsForTeam(team.id)
             .collectInScope(scope, ::handleTeamEvent)
     }
 
     suspend fun getChannelRoom(channelId: UUID) = channels.withLock {
         it.getOrPut(channelId) {
+            val channel = channelService.findByIdInfallible(channelId)
+            logger.d { "Creating new ChannelRoom for ${team.display()}-${channel.display()}" }
+
             ChannelRoom(
-                teamId = teamId,
-                channelId = channelId,
+                team = team,
+                channel = channel,
                 scope,
                 messageService
             )
@@ -59,6 +68,8 @@ class TeamRoom(
         authService.authorizeTeamOwnerOrParticipant(conn.user, team.slug).bind()
 
         connections.withLock { it.add(conn) }
+        logger.d { "Adding ${conn.user.display()} to room for ${team.display()}" }
+
         if (channelSlug == null) return@either null
 
         addConnToChannel(conn, channelSlug).bind()
@@ -66,6 +77,7 @@ class TeamRoom(
 
     suspend fun removeConn(conn: ClientConnectionHandler, channelId: UUID?) {
         connections.withLock { it.remove(conn) }
+        logger.d { "Removing ${conn.user.display()} from room for ${team.display()}" }
 
         if (channelId != null) {
             channels.withLock {
@@ -76,7 +88,7 @@ class TeamRoom(
     }
 
     suspend fun addConnToChannel(conn: ClientConnectionHandler, channelSlug: String) = either {
-        val channel = channelService.findChannelByTeamIdAndSlug(teamId, channelSlug).bind()
+        val channel = channelService.findChannelByTeamIdAndSlug(team.id, channelSlug).bind()
         val channelRoom = getChannelRoom(channel.id)
         channelRoom.addConn(conn)
 

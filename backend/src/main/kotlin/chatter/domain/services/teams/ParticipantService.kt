@@ -7,14 +7,17 @@ import chatter.db.TeamParticipantQueries
 import chatter.db.UserQueries
 import chatter.db.asList
 import chatter.db.asOneInfallible
+import chatter.db.display
 import chatter.db.insert
 import chatter.db.withDb
 import chatter.domain.caches.AuthorizationCache
 import chatter.domain.caches.ParticipantsCache
 import chatter.domain.stores.TeamStore
+import chatter.lib.log.getValue
 import chatter.models.Participant
 import chatter.models.UserPrincipal
 import chatter.models.toDomain
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -29,6 +32,8 @@ class ParticipantService @Inject constructor(
     private val cache: ParticipantsCache,
     private val events: TeamEventsService
 ) {
+    private val logger by Logger
+
     suspend fun findMany(teamSlug: String) = either {
         cache.getOrPut(teamSlug) {
             val team = teamStore.findBySlug(teamSlug).bind()
@@ -69,6 +74,8 @@ class ParticipantService @Inject constructor(
         cache.delete(team.slug)
         events.notifyParticipantsChanged(listOf(team))
 
+        logger.d { "Added ${user.display()} to ${team.display()}" }
+
         return entity
     }
 
@@ -95,6 +102,8 @@ class ParticipantService @Inject constructor(
         authCache.removeParticipant(team.slug, user)
         cache.delete(team.slug)
         events.notifyParticipantsChanged(listOf(team))
+
+        logger.d { "Removed ${user.display()} from ${team.display()}" }
     }
 
     // find all teams where the user participates. these are their own teams

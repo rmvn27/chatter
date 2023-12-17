@@ -89,7 +89,16 @@ class NatsService @Inject constructor(
 
     // close the dispatcher and remove it from the kept ones
     fun closeDispatcher(dispatcher: Dispatcher) {
-        connection.closeDispatcher(dispatcher)
+        // in a bad race condition it can be the case that
+        // we already close a closed dispatcher
+        // if that happens we just ignore it
+        //
+        // this happens when the stateful services
+        // are closed in the wrong order
+        try {
+            connection.closeDispatcher(dispatcher)
+        } catch (_: IllegalArgumentException) {
+        }
         dispatchers.remove(dispatcher)
     }
 

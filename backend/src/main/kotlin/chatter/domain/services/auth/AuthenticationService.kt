@@ -1,7 +1,6 @@
 package chatter.domain.services.auth
 
 import arrow.core.raise.either
-import chatter.UserEntity
 import chatter.UserRefreshTokenEntity
 import chatter.db.UserRefreshTokenQueries
 import chatter.db.asOptional
@@ -10,9 +9,11 @@ import chatter.db.withDb
 import chatter.domain.services.UserService
 import chatter.errors.BadAuthError
 import chatter.errors.BadRefreshToken
+import chatter.lib.log.getValue
 import chatter.lib.toUUID
 import chatter.models.UserAuthTokens
 import chatter.models.UserPrincipal
+import co.touchlab.kermit.Logger
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
@@ -27,6 +28,8 @@ class AuthenticationService @Inject constructor(
     private val queries: UserRefreshTokenQueries,
     private val config: Config
 ) {
+    private val logger by Logger
+
     val configRealm = config.realm
     val jwtVerifier: JWTVerifier by lazy {
         JWT.require(Algorithm.HMAC256(config.jwtSecret))
@@ -40,14 +43,16 @@ class AuthenticationService @Inject constructor(
     suspend fun register(username: String, password: String) = either {
         val newUser = userService.create(username, password).bind()
 
-        createTokens(newUser)
+        createTokens(newUser.id)
     }
 
     suspend fun login(username: String, password: String) = either {
         val user = userService.findByUsername(username) ?: raise(BadAuthError)
         if (!userService.verifyPassword(user, password)) raise(BadAuthError)
 
-        createTokens(user)
+        logger.d { "Successful login for user: ${user.id}" }
+
+        createTokens(user.id)
     }
 
     suspend fun regenerateTokens(refreshToken: String) = either {
@@ -56,6 +61,8 @@ class AuthenticationService @Inject constructor(
             .asOptional()
             ?: raise(BadRefreshToken)
         val jwtToken = createJwtToken(refreshTokenEntity.userId)
+
+        logger.d { "New tokens generated for user: ${refreshTokenEntity.userId}" }
 
         UserAuthTokens(
             refreshToken = refreshToken,
@@ -67,15 +74,15 @@ class AuthenticationService @Inject constructor(
         queries.deleteByRefreshToken(refreshToken.toUUID())
     }
 
-    private suspend fun createTokens(user: UserEntity): UserAuthTokens {
+    private suspend fun createTokens(userId: UUID): UserAuthTokens {
         val tokenEntity = UserRefreshTokenEntity(
             refreshToken = UUID.randomUUID(),
-            userId = user.id
+            userId = userId
         ).insert(queries::insert)
 
         return UserAuthTokens(
             refreshToken = tokenEntity.refreshToken.toString(),
-            accessToken = createJwtToken(user.id)
+            accessToken = createJwtToken(userId)
         )
     }
 
