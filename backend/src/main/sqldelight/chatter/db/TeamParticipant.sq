@@ -1,8 +1,15 @@
+findTeamsForParticipant:
+SELECT t.*
+FROM TeamEntity t
+JOIN ParticipantEntity p
+ON t.id = p.teamId
+WHERE userId = :userId;
+
 findByTeamId:
 SELECT u.*
 FROM UserEntity u
-JOIN ParticipantEntity tp
-ON u.id = tp.userId
+JOIN ParticipantEntity p
+ON u.id = p.userId
 WHERE teamId = :teamId;
 
 findParticipantByIdAndTeam:

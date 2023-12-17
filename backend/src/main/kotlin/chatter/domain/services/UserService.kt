@@ -7,7 +7,7 @@ import chatter.db.asOneInfallible
 import chatter.db.asOptional
 import chatter.db.insert
 import chatter.db.withDb
-import chatter.domain.caches.ParticipantsCache
+import chatter.domain.services.teams.ParticipantService
 import chatter.errors.UserAlreadyExistsError
 import chatter.lib.app.AppScope
 import chatter.models.UserPrincipal
@@ -21,7 +21,7 @@ import javax.inject.Inject
 @SingleIn(AppScope::class)
 class UserService @Inject constructor(
     private val queries: UserQueries,
-    private val participantsCache: ParticipantsCache
+    private val participantService: ParticipantService
 ) {
     // use the `PasswordEncoder` from spring for a simpler interface to bouncy castle
     // this has no other dependencies to other spring packages
@@ -74,17 +74,13 @@ class UserService @Inject constructor(
                 )
             }
 
-            // edge case: since the participants of a team
-            // are cached inside a list we just have to clear the whole cache
-            participantsCache.deleteAll()
+            participantService.handleUserChange(userPrincipal)
         }
     }
 
     suspend fun delete(user: UserPrincipal) {
         withDb { queries.delete(user.userId) }
 
-        // edge case: since the participants of a team
-        // are cached inside a list we just have to clear the whole cache
-        participantsCache.deleteAll()
+        participantService.handleUserChange(user)
     }
 }

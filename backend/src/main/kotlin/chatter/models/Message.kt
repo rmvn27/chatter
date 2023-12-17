@@ -12,7 +12,11 @@ data class Message(
     val timestamp: Long,
     @Serializable(with = UUIDSerializer::class)
     val userId: UUID?,
-)
+) {
+    companion object {
+        fun eventSubject(teamId: UUID, channelId: UUID) = "liveMessages.${teamId}.${channelId}"
+    }
+}
 
 // future proofing where we could have different
 // kinds of liveMessages like images

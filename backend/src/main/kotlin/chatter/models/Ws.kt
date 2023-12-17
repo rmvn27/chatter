@@ -51,8 +51,20 @@ sealed interface WsEvent {
 
 
     @Serializable
-    @SerialName("message")
-    data class Message(
-        val message: chatter.models.Message,
+    @SerialName("messageReceived")
+    data class MessageReceived(
+        val message: Message,
+    ) : WsEvent
+
+    @Serializable
+    @SerialName("participantListChanged")
+    data class ParticipantListChanged(
+        val teamSlug: String
+    ) : WsEvent
+
+    @Serializable
+    @SerialName("channelListChanged")
+    data class ChannelListChanged(
+        val teamSlug: String
     ) : WsEvent
 }

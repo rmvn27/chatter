@@ -84,7 +84,7 @@ export class MessagesState {
   syncMessages = () => {
     createEffect(() => {
       const symb = this.wsService.registerListener((e) => {
-        if (e.type === "message") {
+        if (e.type === "messageReceived") {
           this.setLiveMessages((prev) => {
             prev.unshift(e.message);
             return prev;

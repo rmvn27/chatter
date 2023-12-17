@@ -4,7 +4,6 @@ import arrow.core.raise.either
 import chatter.domain.services.live.RoomService
 import chatter.domain.services.teams.MessageService
 import chatter.lib.coroutines.Locked
-import chatter.models.Message
 import chatter.models.UserPrincipal
 import chatter.models.WsCommand
 import chatter.models.WsEvent
@@ -21,9 +20,7 @@ class ClientConnectionHandler(
 ) {
     private val state = Locked<ClientConnectionState>(ClientConnectionState.Base)
 
-    suspend fun sendMessage(message: Message) {
-        conn.send(WsEvent.Message(message))
-    }
+    suspend fun sendEvent(event: WsEvent) = conn.send(event)
 
     fun handleClose() = conn.onClosed {
         removeFromOldTeam()

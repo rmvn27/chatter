@@ -47,11 +47,25 @@ const errorEvent = z.object({
   code: z.number(),
 });
 
-export type MessageEvent = z.infer<typeof messageEvent>;
-const messageEvent = z.object({
-  type: z.literal("message"),
+const messageRecievedEvent = z.object({
+  type: z.literal("messageReceived"),
   message,
 });
 
+const channelListChangedEvent = z.object({
+  type: z.literal("channelListChanged"),
+  teamSlug: z.string(),
+});
+
+const participantListChangedEvent = z.object({
+  type: z.literal("participantListChanged"),
+  teamSlug: z.string(),
+});
+
 export type WsEvent = z.infer<typeof wsEvent>;
-export const wsEvent = z.discriminatedUnion("type", [errorEvent, messageEvent]);
+export const wsEvent = z.discriminatedUnion("type", [
+  errorEvent,
+  messageRecievedEvent,
+  channelListChangedEvent,
+  participantListChangedEvent,
+]);

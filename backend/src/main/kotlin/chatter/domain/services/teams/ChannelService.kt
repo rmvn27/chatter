@@ -18,7 +18,8 @@ import javax.inject.Inject
 class ChannelService @Inject constructor(
     private val queries: TeamChannelQueries,
     private val teamStore: TeamStore,
-    private val cache: TeamChannelCache
+    private val cache: TeamChannelCache,
+    private val events: TeamEventsService
 ) {
     suspend fun findMany(teamSlug: String) = either {
         cache.getOrPut(teamSlug) {
@@ -53,13 +54,16 @@ class ChannelService @Inject constructor(
         ).insert(queries::create)
 
         cache.delete(teamSlug)
+        events.notifyChannelsChanged(team)
         entity.toDomain()
     }
 
     suspend fun delete(teamSlug: String, channelSlug: String) = either {
-        val channel = findChannelBySlugs(teamSlug, channelSlug).bind()
+        val team = teamStore.findBySlug(teamSlug).bind()
+        val channel = findChannelByTeamIdAndSlug(team.id, channelSlug).bind()
 
         withDb { queries.deleteById(channel.id) }
         cache.delete(teamSlug)
+        events.notifyChannelsChanged(team)
     }
 }

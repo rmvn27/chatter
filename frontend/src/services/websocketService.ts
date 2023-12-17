@@ -13,6 +13,7 @@ export class WebsocketService {
 
   send = (cmd: WsCommand) => {
     const rawData = JSON.stringify(wsCommand.parse(cmd));
+    console.log(cmd);
 
     // Send when connected
     if (this.instance !== undefined && this.instance.readyState === 1) {
