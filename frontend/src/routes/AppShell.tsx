@@ -16,11 +16,15 @@ export const routeData = {
 } satisfies RouteData;
 
 export const Route: RouteComponent<typeof routeData> = (props) => {
-  const teamSlug = () => props.params.teamSlug;
-  const state = AppShellState.create(teamSlug);
+  const routeData = () => props.params;
+  const state = AppShellState.create(routeData);
 
+  // looks weird but we have to create effects within effects
+  // as the `state` could change when changing routes or any other dependency changes
   createEffect(() => {
-    state().notifyOnTeamAndChannelChange(() => props.params);
+    const s = state();
+    s.notifyOnTeamAndChannelChange();
+    s.syncQueryCache();
   });
 
   return (

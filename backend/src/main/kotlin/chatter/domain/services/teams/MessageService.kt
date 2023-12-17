@@ -37,7 +37,7 @@ class MessageService @Inject constructor(
     fun liveMessages(
         teamId: UUID,
         channelId: UUID
-    ) = nats.messages<Message>(messagesSubject(teamId, channelId))
+    ) = nats.messages<Message>(Message.eventSubject(teamId, channelId))
 
     suspend fun sendMessage(teamId: UUID, channelId: UUID, user: UserPrincipal, msg: String) {
         val now = System.currentTimeMillis()

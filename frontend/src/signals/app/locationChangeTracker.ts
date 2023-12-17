@@ -6,10 +6,13 @@ export class LocationChangeTracker {
   constructor(private readonly wsService: WebsocketService) {}
 
   // send location events based on the previous states
-  changeLocation = async (
-    teamSlug: string | undefined,
-    channelSlug: string | undefined,
-  ) => {
+  changeLocation = async ({
+    teamSlug,
+    channelSlug,
+  }: {
+    teamSlug?: string;
+    channelSlug?: string;
+  }) => {
     {
       // if we don't have any previous data
       // we determine the action solely by the new data
