@@ -26,8 +26,8 @@ class DatabaseService @Inject constructor(
         dataSourceClassName = "org.postgresql.ds.PGSimpleDataSource"
         password = config.password
         username = config.user
-        jdbcUrl = "jdbc:${config.user}://${config.host}:${config.port}"
 
+        addDataSourceProperty("serverName", config.host)
         addDataSourceProperty("databaseName", config.database)
 
         validate()

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.kotlinKapt)
     alias(libs.plugins.anvil)
+    alias(libs.plugins.shadowJar)
     application
 }
 

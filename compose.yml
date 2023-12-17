@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  frontend:
+    build:
+      context: frontend
+    environment:
+      # HAS TO BE EXACLY THE SAME AS IN THE `PORTS` FIELD
+      # OTHERWISE REDIRECTS WON'T WORK
+      NGINX_PORT: 8080
+      BACKEND_ADDR: backend:8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: backend
+    environment:
+      # uncomment for more detailed logs
+      # CHATTER_LOG_MIN_SEVERITY: Debug
+      CHATTER_LOG_MIN_SEVERITY: Info
+    volumes:
+      - ./config.json:/data/config.json
+    depends_on:
+      - db
+      - reds
+      - nats
+
+  # storage services are the same as in the compose.dev.yml
+  db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: postgres
+      POSTGRES_DB: chatter
+    volumes:
+      - "data-db:/var/lib/postgresql/data"
+
+  redis:
+    image: redis:alpine
+    volumes:
+      # use to persist cached data
+      - "data-cache:/data"
+
+  # no volumes since nats doesnt store any state
+  nats:
+    image: nats:latest
+
+volumes:
+  data-db:
+  data-cache:

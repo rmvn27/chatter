@@ -1,0 +1,9 @@
+# Ignore all
+*
+
+# Except (no need for the gradle jar as we use the gradle docker image)
+!src/
+!build.gradle.kts
+!gradle.properties
+!settings.gradle.kts
+!versions.toml

@@ -71,7 +71,7 @@ class NatsService @Inject constructor(
     override suspend fun acquire() = withContext(Dispatchers.Virtual) {
         logger.i { "Connecting" }
         val options = Options.Builder().apply {
-            server(config.server)
+            server(config.url)
             maxReconnects(config.reconnects)
             executor(Executors.newVirtualThreadPerTaskExecutor())
         }.build()
@@ -104,7 +104,7 @@ class NatsService @Inject constructor(
 
     @Serializable
     data class Config(
-        val server: String = "nats://localhost:4222",
+        val url: String = "nats://localhost:4222",
         val reconnects: Int = -1
     )
 }
