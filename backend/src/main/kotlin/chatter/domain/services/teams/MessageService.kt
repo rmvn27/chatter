@@ -6,9 +6,11 @@ import chatter.db.TeamMessageQueries
 import chatter.db.asList
 import chatter.db.insert
 import chatter.lib.NatsService
+import chatter.lib.log.getValue
 import chatter.models.Message
 import chatter.models.MessageContent
 import chatter.models.UserPrincipal
+import co.touchlab.kermit.Logger
 import java.util.UUID
 import javax.inject.Inject
 
@@ -17,6 +19,8 @@ class MessageService @Inject constructor(
     private val queries: TeamMessageQueries,
     private val channelService: ChannelService
 ) {
+    private val logger by Logger
+
     suspend fun findByTimestamp(teamSlug: String, channelSlug: String, timestamp: Long, maybePageSize: Int?) = either {
         val pageSize = maybePageSize ?: 50
         val channel = channelService.findChannelBySlugs(teamSlug = teamSlug, channelSlug = channelSlug).bind()
@@ -58,7 +62,9 @@ class MessageService @Inject constructor(
             timestamp = now,
         ).insert(queries::create)
 
-        nats.publish(messagesSubject(teamId, channelId), message)
+        val subject = messagesSubject(teamId, channelId)
+        nats.publish(subject, message)
+        logger.d { "Pushed message to `$subject`" }
     }
 
     private fun messagesSubject(teamId: UUID, channelId: UUID) = "liveMessages.${teamId}.${channelId}"

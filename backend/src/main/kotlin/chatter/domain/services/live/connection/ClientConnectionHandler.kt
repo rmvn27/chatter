@@ -4,9 +4,11 @@ import arrow.core.raise.either
 import chatter.domain.services.live.RoomService
 import chatter.domain.services.teams.MessageService
 import chatter.lib.coroutines.Locked
+import chatter.lib.log.getValue
 import chatter.models.UserPrincipal
 import chatter.models.WsCommand
 import chatter.models.WsEvent
+import co.touchlab.kermit.Logger
 
 // handler for a connection that:
 // - receives and handles the incoming commands
@@ -18,25 +20,31 @@ class ClientConnectionHandler(
     private val roomService: RoomService,
     private val messageService: MessageService
 ) {
+    private val logger by Logger
     private val state = Locked<ClientConnectionState>(ClientConnectionState.Base)
 
     suspend fun sendEvent(event: WsEvent) = conn.send(event)
 
     fun handleClose() = conn.onClosed {
         removeFromOldTeam()
+        logger.d { "Disconnecting ${user.display()}" }
     }
 
     // handle commands at a centralised place and not in the rooms
     // otherwise there were some problems with the state of the connections
-    suspend fun handleCommands() = conn.handleCommands {
-        when (it) {
-            is WsCommand.EnterTeam -> enterTeam(it.teamSlug, null)
-            is WsCommand.EnterChannel -> enterChannel(it.channelSlug)
-            is WsCommand.EnterTeamAndChannel -> enterTeam(it.teamSlug, it.channelSlug)
-            is WsCommand.LeaveTeam -> removeFromOldTeam()
-            is WsCommand.LeaveChannel -> removeFromOldChannel()
-            is WsCommand.SendTextMessage -> sendTextMessage(it.message)
-            else -> {}
+    suspend fun handleCommands() {
+        logger.d { "Connecting ${user.display()}" }
+
+        conn.handleCommands {
+            when (it) {
+                is WsCommand.EnterTeam -> enterTeam(it.teamSlug, null)
+                is WsCommand.EnterChannel -> enterChannel(it.channelSlug)
+                is WsCommand.EnterTeamAndChannel -> enterTeam(it.teamSlug, it.channelSlug)
+                is WsCommand.LeaveTeam -> removeFromOldTeam()
+                is WsCommand.LeaveChannel -> removeFromOldChannel()
+                is WsCommand.SendTextMessage -> sendTextMessage(it.message)
+                else -> {}
+            }
         }
     }
 

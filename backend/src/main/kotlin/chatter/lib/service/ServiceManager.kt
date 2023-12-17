@@ -2,6 +2,8 @@ package chatter.lib.service
 
 import arrow.fx.coroutines.continuations.ResourceScope
 import chatter.lib.app.AppScope
+import chatter.lib.log.getValue
+import co.touchlab.kermit.Logger
 import com.squareup.anvil.annotations.optional.SingleIn
 import kotlinx.coroutines.awaitCancellation
 import javax.inject.Inject
@@ -12,6 +14,7 @@ import javax.inject.Inject
 class ServiceManager @Inject constructor(
     private val services: Set<@JvmSuppressWildcards StatefulService>
 ) {
+    private val logger by Logger
 
     // bind all `StatefulServices` to the `ResourceScope` and
     // then start the services
@@ -21,6 +24,8 @@ class ServiceManager @Inject constructor(
     // just iterate over all services
     context(ResourceScope)
     suspend fun startServices() {
+        logger.i { "Starting stateful services" }
+
         // first acquire and register the release of all services
         val boundServices = services.map {
             install(

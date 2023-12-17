@@ -10,14 +10,11 @@ import chatter.db.insert
 import chatter.db.withDb
 import chatter.errors.TeamNotFoundError
 import chatter.lib.Slug
-import chatter.lib.app.AppScope
-import com.squareup.anvil.annotations.optional.SingleIn
 import java.util.UUID
 import javax.inject.Inject
 
 // some services depend on some of the read operations for the teams
 // so we create a separate store for just the crud ops
-@SingleIn(AppScope::class)
 class TeamStore @Inject constructor(
     private val queries: TeamQueries
 ) {

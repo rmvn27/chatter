@@ -1,3 +1,6 @@
+findById:
+SELECT * FROM ChannelEntity WHERE id = :id;
+
 findByTeamId:
 SELECT *
 FROM ChannelEntity

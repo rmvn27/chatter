@@ -18,4 +18,6 @@ import java.util.UUID
 value class UserPrincipal(
     @Serializable(with = UUIDSerializer::class)
     val userId: UUID
-) : Principal
+) : Principal {
+    fun display() = "UserPrincipal($userId)"
+}

@@ -12,8 +12,6 @@ import javax.inject.Inject
 class AuthorizationCache @Inject constructor(
     private val redis: RedisService
 ) {
-    private val json = JsonParsers.strict
-
     suspend fun getTeamOwner(teamSlug: String): UserPrincipal? {
         return redis.commands.get(teamOwnerKey(teamSlug)).await()?.decodeToUser()
     }
