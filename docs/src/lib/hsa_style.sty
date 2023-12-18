@@ -1,0 +1,312 @@
+%%%
+%%% HSA Arbeiten Layout (deutsch)
+%%% Stefan Jansen
+%%% April 2021
+%%%
+
+%%
+%% Pakete und Paket-Konfigurationen
+%%
+
+\usepackage[ngerman]{babel}           % neue deutsche Rechtschreibung und Trennung
+\usepackage[T1]{fontenc}              % aber notwendig für korrekte PDF-Metadaten
+\usepackage[utf8]{inputenc}           % Umlaute, etc.
+\usepackage{csquotes}                 % Mehrsprachige Texte etc.
+
+\newenvironment{titlepagefont}{\fontfamily{phv}\selectfont}{\par}
+
+%% Layout und Schriften:
+
+\usepackage{geometry}
+\geometry{paper=a4paper,left=35mm,right=35mm,top=30mm}
+
+\usepackage[headsepline]{scrlayer-scrpage}
+% \pagestyle{scrheadings}
+\usepackage[onehalfspacing]{setspace} % 1,5 Zeilenabstand
+% \renewcommand{\familydefault}{phv} % kommt der HSA-Schrift am nächsten
+
+%% Graphiken, Tikz, etc.
+
+\usepackage{graphicx}
+\usepackage[dvipsnames]{xcolor} % Farben Definierbar \definecolor{fhorange}{RGB}{255,153,0}
+
+%% Aufzählungen
+\usepackage{enumitem}
+\usepackage{moreenum} % für \greek
+
+%% Die Hochschulfarben:
+% \definecolor{<name>}{<colorspace>}{<values>}
+\definecolor{HSorange}{RGB}{255,150,0}       %
+\definecolor{HSrot}{RGB}{240,0,69}           %
+\definecolor{HSblau}{RGB}{103,132,165}         %
+\definecolor{HSdunkelgrau}{RGB}{123,118,105}   %
+\definecolor{HShellgrau}{RGB}{175,170,149}   %
+
+\definecolor{HSred}{RGB}{240,0,69}           %
+\definecolor{HSblue}{RGB}{103,132,165}         %
+\definecolor{HSdarkgrey}{RGB}{123,118,105}   %
+\definecolor{HSlightgrey}{RGB}{175,170,149}   %
+
+
+\usepackage{tikz}
+
+\usetikzlibrary{3d}
+\usetikzlibrary{angles}
+\usetikzlibrary{babel}
+\usetikzlibrary{arrows}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{calc}
+% \usetikzlibrary{circuits}
+\usetikzlibrary{decorations}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.shapes}
+\usetikzlibrary{decorations.fractals}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{fadings}
+\usetikzlibrary{fit}
+\usetikzlibrary{intersections}
+\usetikzlibrary{matrix}
+\usetikzlibrary{mindmap}
+\usetikzlibrary{patterns}
+\usetikzlibrary{plotmarks}
+\usetikzlibrary{positioning}
+\usetikzlibrary{quotes}
+\usetikzlibrary{shadows}
+\usetikzlibrary{shapes}
+\usetikzlibrary{shapes.symbols}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{through}
+
+\usepackage{pgfplots}
+\usepackage{array}
+\usepackage{pdfpages}
+
+
+%% wichtige mathematische Pakete
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{dsfont}                      % \mathds{N,Z,Q,R,C}$
+\usepackage{units}                       % für Einheiten \unit{m} / \unitfrac{m}{s^2}
+\usepackage{nicefrac}                    % schöne Brüche insb. im Text \nicefrac{11}{23}
+\usepackage{icomma}                      % fuer deutsches Komma in Zahlen
+\usepackage{amssymb}                     % für \checkmark
+\usepackage{bbm}                         % Andere Cal Schrift
+\usepackage{eucal}                       % Coole kaligraphische Schrift!
+\usepackage{centernot}
+
+% Tittelseite - was erscheint, was nicht?
+\newbool{Verteidigung} \boolfalse{Verteidigung}
+\newbool{Zweitpruefer} \boolfalse{Zweitpruefer}
+
+
+%% For tabular Umgebungen:
+\usepackage{booktabs}  %  \toprule / \midrule / \cmidfrule / \bottomrule
+\usepackage{tabularx}  % bessere tabular Umgebung!
+\usepackage{colortbl}  % für farbige Tabellen
+% \usepackage{longtable} % für Tabellen über mehrere Seiten
+\usepackage{caption}  % Für die Tabellenüberschriften
+\usepackage{wrapfig}
+\usepackage{subcaption}
+
+\captionsetup[wrapfigure]{justification=raggedright, singlelinecheck=off}
+\captionsetup{justification=raggedright, singlelinecheck=off}
+
+\usepackage{multirow}  % Für Einträge über mehrere (zusammengefasste) Zeilen
+
+%% Sonstige Pakete:
+\usepackage{wasysym}
+\newcommand{\Telefon} {\phone}
+\usepackage{hyperref}
+\usepackage[shortcuts]{extdash}
+\usepackage{listings}
+
+%% Allow to break urls everywhere
+\makeatletter
+\g@addto@macro{\UrlBreaks}{%
+  \do\/\do\a\do\b\do\c\do\d\do\e\do\f%
+  \do\g\do\h\do\i\do\j\do\k\do\l\do\m%
+  \do\n\do\o\do\p\do\q\do\r\do\s\do\t%
+  \do\u\do\v\do\w\do\x\do\y\do\z%
+  \do\A\do\B\do\C\do\D\do\E\do\F\do\G%
+  \do\H\do\I\do\J\do\K\do\L\do\M\do\N%
+  \do\O\do\P\do\Q\do\R\do\S\do\T\do\U%
+  \do\V\do\W\do\X\do\Y\do\Z}
+\makeatother
+
+\def\MakeUppercaseUnsupportedInPdfStrings{\scshape}
+
+
+%% Angaben, die individuell im Dokument benötigt werden (Titelseite und Erklärung) und im Text geändert werden können:
+
+\newcommand{\AutorName}           {Leonhard Euler}
+\newcommand{\AutorMatrikelnummer} {2718282}
+\newcommand{\AutorStrasse}        {Am Musterweg~3}
+\newcommand{\AutorPLZOrt}         {86191 Ausgburg}
+\newcommand{\AutorTelefon}        {+49\,1504\,1707}
+\newcommand{\AutorEMail}          {leo.euler@hs-augsburg.de}
+
+\newcommand{\ArbeitThema}         {Methodus Inveniendi Lineas Curvas}
+\newcommand{\ArbeitTyp}           % {Bachelorarbeit}
+                                   {Masterarbeit}
+\newcommand{\AutorOrtUnterschrift} {Augsburg}
+
+\newcommand{\Fakultaet}           {Fakultät für \\ Informatik}
+
+\newcommand{\FakultaetTelefon}    {+49\,821\,5586-3301}
+\newcommand{\FakultaetFax}        {+49\,821\,5586-3310}
+\newcommand{\FakultaetEMail}      {fgn@hs-augsburg.de}
+
+\newcommand{\Studiengang}         {Mathematik}
+\newcommand{\Abschluss}           {Master of Science}
+
+\newcommand{\DatumAbgabe}        {\today}
+\newcommand{\DatumThemenvergabe} {\today}
+\newcommand{\DatumVerteidigung}  {}
+
+\newcommand{\NonDisclosure}      {Ja}
+                                  % {Nein}
+\newcommand{\Erstpruefer}        {Prof.~Dr.~Frank N. Stein}
+\newcommand{\Zweitpruefer}       {Prof.~Dr.~Mario Huana}
+\newcommand{\HochschuleName}     {Hochschule für angewandte \\ Wissenschaften Augsburg}
+\newcommand{\HochschuleStrasse}  {An der Hochschule 1}
+\newcommand{\HochschulePLZOrt}   {D-86161 Augsburg}
+\newcommand{\HochschuleTelefon}  {+49\,821\,5586-0}
+\newcommand{\HochschuleFax}      {+49\,821\,5586-3222}
+\newcommand{\HochschuleURL}      {www.hs-augsburg.de}
+\newcommand{\HochschuleEMail}    {info@hs-augsburg.de}
+
+
+
+
+
+%%%
+%%%
+%%% Titelseite
+%%%
+%%%
+
+
+
+\newcommand{\mytitlepage}{
+
+\newgeometry{left = 27mm, right = 15mm, top = 20mm, head = 0mm, textheight = 276mm}
+\begin{titlepage}
+\begin{titlepagefont}
+\begin{minipage}{\textwidth}
+\hspace{10.53cm} \includegraphics[width= 60mm]{assets/hsa-logo} \\
+\end{minipage}
+
+\medskip
+
+\begin{minipage}[t][15cm][t]{129mm}
+{\color{HSorange} \fontsize{18}{18} \selectfont \textbf{\ArbeitTyp}} \\
+
+{\fontsize{15}{18} \selectfont
+
+\Studiengang}
+
+\vspace{18mm}
+
+{\color{HSorange} \fontsize{15}{30} \selectfont
+\textbf{\ArbeitThema}
+}
+
+\vspace{16mm}
+
+{\fontsize{15}{18}  \selectfont
+\AutorName
+}
+
+
+\vspace{55mm}
+
+ \fontsize{11}{18}  \selectfont
+\begin{tabularx}{.8\textwidth}{lcl}
+	Erstprüfer  & : & \Erstpruefer \\
+\ifbool{Zweitpruefer}{Zweitprüfer & : & \Zweitpruefer \\}{}
+	Eingereicht am & : & \DatumAbgabe
+\end{tabularx}
+
+\end{minipage}
+\begin{minipage}[t][15cm][t]{40mm}
+{\color{HSorange} \fontsize{12}{12} \selectfont
+\Fakultaet
+}
+
+\vspace{40mm}
+
+\fontsize{7}{10} \selectfont
+\textbf{\AutorName} \\
+\AutorStrasse \\
+\AutorPLZOrt \\
+\AutorTelefon \\
+\AutorEMail \\[2mm]
+Matrikelnummer: \\
+\AutorMatrikelnummer
+
+\vspace{30mm}
+
+{\color{HSred}
+\HochschuleName  \\
+
+\smallskip
+\HochschuleStrasse \\
+\HochschulePLZOrt\\
+
+\smallskip
+Telefon: \HochschuleTelefon \\
+Fax: \HochschuleFax \\
+\HochschuleURL \\
+\HochschuleEMail
+
+}
+
+\end{minipage}
+\vspace{1.5cm}
+
+\end{titlepagefont}
+\end{titlepage}
+
+
+\restoregeometry
+}
+
+
+%%%
+%%%
+%%% Selbständigkeitserklaerung
+%%%
+%%%
+
+\newcommand{\AutorErklaerung} {
+
+\thispagestyle{empty}
+
+\subsection*{Declaration concerning the final project}
+
+I herewith affirm that I have drafted the submitted dissertation independently and have not used any other sources or resources than those declared therein. Sources quoted literally or substantively have been cited according to the acknowledged rules of  scientific publication. Furthermore, I declare  that the dissertation has  not  been submitted elsewhere. I have read and understood the explanatory note on fraud in examination procedures at the University of Applied Sciences Augsburg. I affirm that the submitted dissertation does not include any plagiarism or any texts or figures created by other persons acting on my instructions. \\ \bigskip \bigskip
+
+
+\subsection*{Erklärung zur Abschlussarbeit}
+
+
+Hiermit versichere ich, die eingereichte Abschlussarbeit selbständig verfasst und keine andere als die von mir angegebenen Quellen und Hilfsmittel benutzt zu haben. Wörtlich oder inhaltlich verwendete Quellen wurden entsprechend den anerkannten Regeln wissenschaftlichen Arbeitens zitiert. Ich erkläre weiterhin, dass die vorliegende Arbeit noch nicht anderweitig als Abschlussarbeit eingereicht wurde. Das Merkblatt zum Täuschungsverbot im Prüfungsverfahren der Hochschule Augsburg habe ich gelesen und zur Kenntnis genommen. Ich versichere, dass die von mir abgegebene Arbeit keinerlei Plagiate, Texte oder Bilder umfasst, die durch von mir beauftragte Dritte erstellt wurden.
+
+
+\bigskip \bigskip \bigskip \bigskip \bigskip \bigskip
+
+
+\AutorOrtUnterschrift, den \today
+
+\bigskip \bigskip \bigskip
+
+\rule[-0.2cm]{7cm}{0.5pt}
+
+{\footnotesize Unterschrift \AutorName}
+
+}
+
+
+

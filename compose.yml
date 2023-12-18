@@ -25,7 +25,7 @@ services:
       - ./config.json:/data/config.json
     depends_on:
       - db
-      - reds
+      - redis
       - nats
 
   # storage services are the same as in the compose.dev.yml
