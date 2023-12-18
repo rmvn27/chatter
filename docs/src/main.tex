@@ -1,0 +1,89 @@
+\documentclass[
+  12pt,
+  DIV = 8,
+  toc = bibliography,
+  titlepage,
+  parskip=half
+]{scrreprt}
+
+\usepackage{lib/hsa_style}
+\usepackage{lib/code}
+\usepackage{lib/commands}
+
+\hypersetup{pdfauthor={Roman Kolesnikov},
+  pdftitle={Abschlussdokumentation \- Chatter},
+  pdfsubject={Abschlussdokumentation \- Chatter},
+  pdfkeywords={},
+  pdfproducer={LaTeX},
+  pdfcreator={pdfLaTeX}
+}
+
+\renewcommand{\AutorName}            {Roman Kolesnikov}
+\renewcommand{\AutorMatrikelnummer}  {2173133}
+\renewcommand{\AutorStrasse}         {Kolbergstr.~18}
+\renewcommand{\AutorPLZOrt}          {86167 Augsburg}
+\renewcommand{\AutorEMail}           {roman.kolesnikov1@hs-augsburg.de}
+\renewcommand{\AutorTelefon}         {+49\,17645624204}
+\renewcommand{\AutorOrtUnterschrift} {Augsburg}
+\renewcommand{\ArbeitThema}          {Chatter -- Chatplattform für Teams}
+\renewcommand{\Studiengang}          {Informatik (M.Sc.)}
+
+\renewcommand{\ArbeitTyp}{Abschlussdokumentation}
+
+\renewcommand{\Abschluss}{Bachelor of Science}
+
+% \renewcommand{\FakultaetTelefon} {}
+% \renewcommand{\FakultaetEMail}   {}
+
+\renewcommand{\DatumAbgabe}        {\today}
+% \renewcommand{\DatumThemenvergabe} {20.\ Oktober 2022}
+\renewcommand{\DatumVerteidigung}  {\today} \booltrue{Verteidigung}
+
+\renewcommand{\NonDisclosure} {Nein}
+\renewcommand{\Erstpruefer}        {Dipl.-Inf.~(FH), Dipl.-Designer~(FH),\\ & & M.A. Erich Seifert}
+% \renewcommand{\Zweitpruefer}       {Dipl.-Inf.~(FH), Dipl.-Designer~(FH),\\ & & M.A. Erich Seifert} \booltrue{Zweitpruefer}
+\renewcommand{\HochschuleName}     {Technische Hochschule Augsburg}
+\renewcommand{\HochschuleStrasse}  {An der Hochschule 1}
+\renewcommand{\HochschulePLZOrt}   {D-86161 Augsburg}
+\renewcommand{\HochschuleTelefon}  {+49\,821\,5586\-0}
+\renewcommand{\HochschuleFax}      {+49\,821\,5586\-3222}
+\renewcommand{\HochschuleURL}      {www.hs-augsburg.de}
+\renewcommand{\HochschuleEMail}    {info@hs-augsburg.de}
+
+% \hyphenation{Shva-ch-ko}
+
+%% To change the caption of tables:
+\addtokomafont{caption}{\footnotesize}
+% \setkomafont{captionlabel}{\sfseries\bfseries}
+
+%% Nummerierungen Kapitel / Tiefe toc
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+%% No indent after linebreaks
+\setlength{\parindent}{0pt}
+
+\usepackage[style=numeric-comp, backend=biber,sortcites]{biblatex}
+
+\renewcommand{\lstlistlistingname}{Quelltextverzeichniss}
+\renewcommand{\lstlistingname}{Quelltext}
+
+\addbibresource{sources.bib}
+
+\captionsetup[lstlisting]{justification=centering}
+
+\begin{document}
+
+\mytitlepage{}
+\tableofcontents
+
+% Place chapters
+\include{chapters/0_intro}
+\include{chapters/1_konzeption}
+\include{chapters/2_implementation}
+\include{chapters/3_fazit}
+
+\appendix
+\printbibliography{}
+
+\end{document}

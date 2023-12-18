@@ -1,0 +1,193 @@
+\chapter{Implementation}
+
+Mit der beschriebenen Konzeption kann nun die Implementation des Webapplikation
+besprochen werden. Diese wird dabei in das Frontend und Backend aufgeteilt. So
+wurde zwar immer Feature basiert gearbeitet, \dh{} um eine Funktionalität zu
+erweitern mussten meistens sowohl das Frontend als auch das Backend angepasst
+werden, jedoch hat man eine starke Konzeptionelle Unterscheidung, wie beide
+Applikationsteile aufgebaut sind. So sollen in den folgenden Abschnitten
+zuerst das Backend und danach das Frontend beschrieben werden. Zuletzt soll noch eine
+kurze Übersicht gegeben werden, wie die Webapplikation ausgeführt werden kann.
+
+\section{Backend}
+
+Das Backend wurde, wie schon in der Konzeption erläutert, mithilfe von der
+Programmiersprache \emph{Kotlin} geschrieben und folgt einer
+Schichtenarchitektur mit insgesamt drei Ebenen. Diese Schichten werden in den
+folgendens Unterkapiteln näher betrachtet.
+
+\subsection{Datenschicht}
+
+Die Datenschicht soll es ermöglichen, einen Zugriff auf Daten von verschiedenen
+Persistenz-Technologien zu erhalten und diese zu manipulieren. Dafür wurde hauptsächlich
+mit der beschriebenen relationalen Datenbank PostgreSQL und der Bibliothek \emph{sqldelight}
+gearbeitet. Durch diese Bibliothek konnte das Datenmodell und die Queries durch
+SQL definiert werden und die Bibliothek generierte daraus Typsicheren Quelltext zur Interaktion
+mit der Datenbank. Dafür müssen zuerst Migrationsdateien, welche einfache SQL-Skripte sind,
+geschrieben werden. In diesen werden die üblichen Statements wie \code{CREATE TABLE}
+das Datenmodell definiert. Daraus kann \emph{sqldelight} aus den definierten Tabellen einfache
+Datenklassen zu den bilden. Separat werden auch noch die Queries für die Interaktion mit den Tabellen
+definiert. Dafür werden Dateien erstellt aus denen \code{Query} Klassen generiert werden. In dieser
+können Queries geschrieben werden, zu welchen immer ein Label gesetzt wird, welche den späteren
+Methodennamen darstellt.
+
+Mit der Quelltext-Generation kann, konnte dann der \code{DatabaseService} geschrieben werden. In diesem
+wird eine Verbindung über einen Connection-Pool zur Datenbank herstellt und mit der bestehenden Verbindung
+die Query-Klassen initialisiert. Zusätzlich besteht ein \code{MigrationService}, der im \code{DatabaseService}
+genutzt wird. So müssten die bereits in SQL geschriebenen Migrationen auch ausgeführt werden, und die bisherige
+Version des Datenbankschemas persistiert werden. \emph{sqldelight} generiert dafür eine \code{migrate}-Methode,
+die die Migrationen ausführt. Für diese muss aber die bisherige Version des Datenbankschemas übergeben werden.
+Dafür wird im \code{MigrationService} eine Tabelle in der Datenbankerstellt, welche die Version persistiert.
+So kann diese Version für die Migration erhalten werden und nach der Migration auf die neueste Version gesetzt werden.
+
+Neben der Datenbank wird noch im Backend der geteilter In-Memory-Cache \emph{redis}~\cite{redis} eingesetzt.
+Damit können Daten geteilt bei mehreren Backend-Instanzen zwischengespeichert werden. Dies wurde gemacht, um
+Datenbankabfragen, welche eine längere Zeit dauern zwischenzuspeichern und die Ergebnisse schneller zurückgeben
+zu können. Ein Beispiel ist hierfür der \code{AuthorizationCache}, in welcher die Zugriffsberechtigungen für
+das Absichern der API zwischenspeichert.
+
+\subsection{Businessschicht}
+
+Mit dem rohen Datenzugriff kann nun die eigentliche Applikationslogik für das
+Backend erstellt werden. Dies erfolgt in den \emph{Services} Klassen, welche
+auf den \emph{Queries} und \emph{Caches} der vorherigen Schicht aufbauen. Diese enthalten die
+spezifischen Applikationslogik, um \zb{} die Aktionen für die Teams oder der
+Authentifikation durchzuführen. Diese Services haben dabei keinen
+internen Zustand und hängen nur von der Datenhaltung oder weiteren Services ab.
+
+Die Services für den Nutzer, die Teams, die Team-Kanäle und die Team-Teilnehmer, bieten dabei
+eine sehr ähnliche Schnittstelle an. Diese hauptsächlich ein Create-Read-Update-Delete (CRUD)
+Interface an, um eines oder mehrere Datensätze zu erhalten, neue zu erstellen
+oder alte zu verändern und zu löschen. Es gibt auch spezifischere Aktionen auf den jeweiligen
+Daten, welches \zb{} welches mehr als nur die Manipulation eines Objektes
+erfordert. Dafür werden domänenspezifische Aktionen angeboten. Ein Beispiel ist das Beitreten
+eines neuen Teammitgliedes zu einem Team. Hier werden auch die Daten aus der Persistenz-Schicht
+zu domänenspezifischen Objekten umgewandelt, welche auch für die spätere Präsentationsschicht
+serialisierbar sind.
+
+So gibt es aber auch Services, die nicht in das CRUD-Schema passen. Dies ist
+\zb{} der \code{AuthenticationService} oder \emph{AuthorizationService}, welche die Nutzer Authentifikation und
+Autorisation steuert. Über den \code{AuthenticationService} dieses können Nutzerkonten erstellt werden
+über eine Registration erstellt werden. Um den Nutzer für die spätere Authentifikation zu
+identifizieren wird eine Kombination aus einem kurzlebigen Access-Token und
+einem langlebigen Refresh-Token verwendet. Der Access-Token, ist dabei ein
+signierter \emph{JWT} Token, welcher nur eine kurze Gültigkeit von einem Tag
+hat. Dieser wird zu der eigentlichen Authentifikation verwendet. Wenn der
+bisherige AccessToken abgelaufen ist, kann der RefreshToken verwendet werden,
+um einen neuen AccessToken generieren zu lassen. Dafür muss der Refresh-Token
+in der Datenbank gespeichert werden. Durch diese Kombination beider Tokens, muss
+nur selten ein Datenbankzugriff zur Authentifikation erfolgen. Zuletzt hat der
+\code{AuthorizationService} Methoden zur Autorisation. Mit diesen kann geprüft werden,
+ob ein Nutzer der Besitzer eines Projektes ist oder dieses für ihn geteilt
+wurde, womit in der Präsentationsschicht die API-Routen abgesichert werden können.
+
+Das das Backend über eine Echtzeit-Komponenten für Chats der einzelnen Teams und zur
+generellen Benachrichtigung von Events verfügt, gibt es noch \emph{Services} zur Steuerung
+von diesen. Um auch hier eine Skalierung des Backends zu ermöglichen, wurde das Pub-Sub-System \emph{Nats}~\cite{nats}
+eingesetzt. Mit diesem System ist es möglich sich für verschiedene Nachrichtenkanäle zu registrieren,
+und beim Senden von Nachrichten davon benachrichtigt werden. So kann \zb{} bei mehreren
+Backend-Instanzen eine Instanz für den Client eine Chat-Nachricht senden und alle weiteren
+Backends würden davon benachrichtigt werden. Das wird verwendet, da die Websocket-Verbindungen
+zwar zustandsvoll sind und so immer an ein Backend gebunden sind, jedoch mit dieser Technik
+Benachrichtigungen, immer an alle Clients ausgeliefert werden können, egal mit welcher spezifischen
+Instanz, diese sich verbunden haben.
+
+\subsection{Präsentationsschicht}
+
+Als letzte Schicht wird noch die Präsentationsschicht betrachtet. Diese bietet
+eine REST-Schnittelle durch die Bibliothek \emph{ktor} an. Zum Erstellen von
+API-Routen wurden Klassen erstellt, welche das selbst geschrieben \code{HttpRouter}
+Interface implementieren. In diesem wird ein Callback erfüllt, über welchen die einzelnen
+API-Routen registriert werden können. Für jede Route wird so in der Klasse eine
+Handler-Methode geschrieben. In dieser Methode stehen einen die verschiedenen
+HTTP-Request Daten zur Verfügung. So kann in den Methoden \zb{} ein JSON-Objekt aus dem
+HTTP-Body der Abfrage deserialisiert werden. Mit dem erhaltenen Daten können dann
+die Methode der Services aufgerufen, die erhaltenen domänenspezifischen Objekte
+in JSON-Objekte serialisiert und diese darauf als Antwort dem Client zurückgegeben werden.
+Die implementierten \code{HttpRouter} konnten dann dem \code{HttpService} übergeben werden,
+wo der Http-Server von \code{ktor} gestartet wurde um den Router-Klassen konfiguriert  wurde.
+
+\subsection{Dependecy Injection}
+
+Für eine automatische Instanziierung aller benötigter Klassen und eine passende
+Anbindung derer Abhängigkeiten, wurde die Dependency-Injection Bibliotheken
+\emph{dagger} und \emph{anvil} verwendet. Für die Integration in die bisher beschriebenen
+Klassen müssen hierfür nur um Annotationen ergänzt werden. Dadurch wird mitgeteilt, über welchen
+Konstruktor \zb{} die Klasse initialisierbar ist. Auch wurde es öfters gebraucht, dass Klassen eine
+Ansammlung von Instanzen erhalten, welche ein spezifisches Interface erfüllen. Dafür konnten auch
+Annotationen gesetzt werden, welche signalisieren, dass eine Klasseninstanz genau dafür verwendet werden kann.
+
+Zum erstellen und instialisieren des gesamten Abhängigkeits-Graphen der Applikation stellt der \code{AppComponent}
+den Einttritspunkt dar. Für dieses erstellt \emph{dagger} den gesammten Injektions-Quelltext, um
+eine konkrete Instanz des \code{AppComponents} zu erhalten. In diesem ist der \code{ServiceManager}
+vorhanden, welcher die Dienste der Applikation verwaltet und startet.
+
+\section{Frontend}
+
+Nun sollte auch das Frontend der Applikation beschrieben werden, welches mit
+der Programmiersprache \emph{TypeScript} und der UI-Bibliothek \emph{SolidJS}
+entwickelt wurde. Das Frontend hat dabei die Aufgabe, Daten von dem Backend zu
+erhalten und daraus eine Interaktive-Nutzeroberfläche im Browser zu erstellen.
+Auch sollten bei Nutzerinteraktionen die Daten des Backends manipuliert werden
+können. Dafür kann das Frontend in zwei Teile gegliedert werden: Die
+UI-Komponenten, welche die UI und deren Interaktivität bilden und den
+dazugehörigen Zuständen, welche die Daten zur Darstellung und Methoden für die
+Datenmanipulation für die UI-Komponenten anbieten.
+
+Da die einzelnen Zustände die Grundlage für die UI-Komponenten bilden, sollten
+sich diese zuerst betrachtet werden. Da \emph{SolidJS} eine reaktive
+UI-Bibliothek ist, werden für das Bilden von Zuständen, primitive
+Datenstrukturen angeboten, mit welchen die UI-Komponenten angepasst werden
+können, falls sich der Inhalt der Datenstrukturen ändern. Ein Beispiel ist
+dafür die \code{createSignal} Funktion. Die einen Getter für den Erhalt der
+Daten und einen Setter zum Setzen neuer Daten zurückgibt. Wenn ein neuer Wert
+über den Setter gesetzt wird, wird jede Komponente, die den Getter verwendet
+mit dem neuen Inhalt angepasst. Solche primitive werden nun in
+\emph{State}-Klassen verwendet, um den Zustand für die UI zu bilden. Dafür
+halten diese zum einen den Zustand für die UI-Logik, wie \zb{} den Zustand
+einer Form für das Erstellen das Verwalten eines Teams. Auch halten die States, die aus dem
+Backend erhaltenen Daten. Die Zustandsklasse bietet nun eine Schnittstelle
+durch Methoden an, um die internen Daten zu erhalten und zu verändern.
+
+Diese Zustände werden verwendet, um die UI zu bilden und eine Interaktivität zu
+dieser hinzuzufügen. Dafür werden in \emph{SolidJS} \sog{} Komponenten
+verwendet, welche einfache Funktionen sind, die HTML-Markup oder andere
+Komponenten zurückgeben können. Diese werden im Vergleich zu anderen
+Komponentenbasierten UI-Bibliotheken nur einmal für das Rendern aufgerufen. So
+kann hierarchisch die gesamte Applikation gebildet werden. Die Komponenten sind
+dabei nach den möglichen Navigations-Routen der Applikation organisiert. Diese
+können in der \code{App} Komponenten zu der Applikation über einen Routing
+Mechanismus eingebunden werden. So gibt es immer für jede mögliche Destination
+eine \code{Route} Komponente, die über diese Route verantwortlich ist. Dabei
+können auch Routen weitere Routen selbst erhalten. So ist \zb{} die Route
+für ein einzelnes Team in der Route für die gesamte Applikation eingebunden.
+So werden wie die Komponenten selbst, die Routen hierarchisch angeordnet In
+diesen Routen werden auch immer die passenden Zustände aus dem vorherigen Abschnitt
+gebildet. Alle weiteren Komponenten unter einer \code{Route} können dabei den Zustand
+von der Route erhalten, um mit den Daten die UI zu bilden oder die Interaktivität
+der UI zu geben.
+
+\section{Inbetriebnahme}
+
+Zuletzt sollte noch beschrieben werden, wie das Projekt gestartet werden kann.
+Hierfür können werden zwei Möglichkeiten geboten. So kann man hierfür zum einen
+die lokale Entwicklungsvariante verwenden. In dieser müssen das Frontend und
+Backend separat gestartet werden. Eine genaue Anleitung findet sich in der
+\code{README} Datei im Root des Projektes. Hierbei kann mit der Entwicklungsumgebung
+\emph{Intellij IDEA} das Backend gestartet werden. Das Frontend hingegen benötigt,
+dadurch dass es in \emph{TypeScript} geschrieben wurde, eine relativ neue Version von
+\emph{Node.js}~\cite{node} und der Paket-Manager \emph{pnpm}~\cite{pnpm}.
+Diese Variante kann verwendet werden, um das Projekt auszuführen jedoch sollte dafür
+wegen der Einfachheit die nächste Variante verwendet werden.
+
+Eine weitere Möglichkeit, das Projekt in Betrieb zu nehmen, ohne die gesamten
+Abhängigkeiten für das Frontend und Backend zu installieren, ist das Container
+Orchestrierungstool \emph{Docker}~\cite{docker}. Dafür wird nur \emph{docker}
+selbst und das Tool \emph{docker-compose} benötigt, welches bei den älteren
+Versionen von \emph{docker} seperat installiert werden muss. Dafür findet sich
+im Root des Projektes eine \code{compose.yml} Datei. In dieser wird das
+Backend und Frontend neben den Persistenz-Technologien gestartet. Hierbei sollten
+noch Konfigurationsdateien erstellt werden. Dafür braucht es im Root des Projektes
+eine \code{.env} und eine \code{config.json} Datei. Auch hierfür findet sich in der \code{README}
+Datei des Projektes eine genaue Anleitung, wie mit welchen Daten diese Dateien befüllt werden sollten.
+Danach kann das Projekt mit den \code{docker-compose up ----build} Befehl gestartet werden.
