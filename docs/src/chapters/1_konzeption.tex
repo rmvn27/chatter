@@ -98,16 +98,16 @@ Von der Seitenleiste aus kann zu einem spezifischen Team navigiert werden, wo ma
 Hauptinterface der Applikation kommt. Diese ist eine drei geteilte Ansicht, welche die wichtigsten
 Informationen für ein Team zeigt. Die Abbildung~\ref{fig:teamOverview} zeigt diese Ansicht. Diese
 zeigt die bisher erwähnte Seitenleiste zur Übersicht aller Teams. Neben dieser finden sich zwei weitere
-Seitenleisten, die zum Team gehören. In der linken Seitenleiste. Werden die Textkanäle angezeigt,
-welche wenn betreten visuell markiert werden. Neben dieser erhält der Besitzer des Teams einen Button
+Seitenleisten, die zum Team gehören. In der linken Seitenleiste werden die Textkanäle angezeigt,
+welche wenn betreten, visuell markiert werden. Neben dieser erhält der Besitzer des Teams einen Button
 zu den Einstellungen eines Teams, während ein eigeladener Nutzer stattdessen einen Button zum Verlassen
 des Teams auffindet. In der weiteren Seitenleiste finden sich alle Teilnehmer des Teams. Hier wird
 der Besitzer des Teams speziell markiert. Auch erhält der Besitzer des Teams die Möglichkeit
 über diese Liste eingeladene Nutzer aus dem Team zu entfernen.
 
 Auch sollte jedes Team seine eigenen Einstellungen haben. In diesen Einstellungen sollen zuerst
-allgemeine Optionen zu dem Team verwaltet werden, dies beinhaltet zum bisherigen Zeitpunkt nur die Option
-den Namen des Teams zu ändern. Daneben können hier die Textkanäle verwaltet werden, dafür kann ein neuer
+allgemeine Optionen zu dem Team verwaltet werden. Dies beinhaltet zum bisherigen Zeitpunkt nur die Option
+den Namen des Teams zu ändern. Daneben können hier die Textkanäle verwaltet werden. Dafür kann ein neuer
 Kanal hinzugefügt und bestehende gelöscht werden. Die Option bestehende Kanäle nur umzubenennen, gibt es bisher nicht.
 Zuletzt sollen hier neue Invite-Codes für das Team generiert werden. Dieser kann der Besitzer des Teams erstellen
 und an weitere potentielle Nutzer geben, welche diese dann einlösen können. So ist eine einzelne Einladung nur
@@ -122,8 +122,7 @@ im bisher leeren Bereich zwischen den Seitenleisten, wie es in der Abbildung~\re
 im Team gezeigt, wenn auf einen der Kanäle in der Seitenleiste geklickt wird. Danach kann
 der Nutzer Nachrichten schreiben, die allen Nutzern zugestellt werden. Wenn der Nutzer eine
 Nachricht sendet und weitere Teilnehmer zurzeit denselben Kanal betrachten, wird diese Nachricht
-allen Teilnehmern in Echtzeit zugestellt und die Seite muss nicht neugeladen werden, um
-neue Nachrichten zu betrachten. Neben den Echtzeit Nachrichten kann auch die Historie des Kanales
+allen Teilnehmern in Echtzeit zugestellt und die Seite muss nicht neugeladen werden. Neben den Echtzeit-Nachrichten kann auch die Historie des Kanales
 mit den bisher gesendeten Nachrichten betrachtet werden. Diese sollten, damit der Nutzer nicht zu lange
 auf die Historie warten muss, in kleinen Paketen geladen werden. Wenn der Nutzer an das Ende der bisher
 geladenen Historie gescrollt hat, sollten diese falls noch Nachrichten vorhanden sind, nachgeladen werden.
@@ -139,9 +138,6 @@ Um die Nachrichten zu schreiben, wird ein Textfeld angeboten. In diesem sollten 
 geschrieben werden und mit dem Drücken der Enter-Taste gesendet werden können. Da öfters auch längere
 Nachrichten gesendet werden müssten, kann mit der Kombination aus der Shift- und Enter-Taste eine
 neue Zeile begonnen werden. Das Textfeld wird sich hierfür auch automatisch in der Größe erweitern.
-Ein zusätzlich eingebautes Feature ist die Möglichkeit die Nachrichten mit Hilfe von Markdown formatieren
-zu können. So können einzelne Bestandteile dick oder kursiv hervorgehoben werden, Überschriften benutzt
-und Quelltext mit Syntax-Highlighting geschrieben werden.
 
 \section{Technologien}
 
@@ -172,7 +168,7 @@ Für das Nutzerverwaltung werden zwei Tabellen benötigt, zum einen die
 Die \emph{UserEntity} Tabelle hält den Nutzer selbst. Dies beinhaltet den einen
 Nutzernamen für den Login, ein Passwort, welches zuvor gehashed wird, und einen
 Anzeigenamen für die Teilnehmerliste und Chatnachrichten. Die \emph{UserRefreshTokenEntity}
-Tabelle wird zusätzlich benötigt, um die \anf{refreshTokens} für die spätere
+Tabelle wird zusätzlich benötigt, um die \emph{refreshTokens} für die spätere
 Authentifikation zu speichern.
 
 Die weiteren Tabellen werden zur Verwaltung der Teams und der Unterkomponenten gebraucht.
@@ -238,7 +234,7 @@ die auf der JVM verwendet werden kann, und deren Ökosystem verwendet. Die wicht
 Pakete waren hierfür: \emph{sqldelight}~\cite{sqldelight}, \emph{ktor}~\cite{ktor}
 und \emph{dagger}~\cite{dagger} zusammen mit \emph{anvil}~\cite{anvil}. \emph{sqldelight}
 bietet dafür einen Typsicheren Zugriff zur Datenbank, welche über Quelltext-Generation geschieht.
-Durch \emph{ktor} konnte die REST-Schnitstelle aus auch das Behandeln von Websocket-Verbindungen
+Durch \emph{ktor} konnte die REST-Schnitstelle als auch das Behandeln von Websocket-Verbindungen
 für die Präsentationsschicht implementiert werden. Zuletzt konnte über die Bibliothek
 \emph{dagger} und dem Erweiterungspaket \emph{anvil} Paket, eine automatische Dependency-Injection
 für die Verbindung der einzelnen Schichten und deren Diensten ermöglicht werden.

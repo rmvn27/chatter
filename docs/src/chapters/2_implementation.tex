@@ -31,7 +31,7 @@ definiert. Dafür werden Dateien erstellt aus denen \code{Query} Klassen generie
 können Queries geschrieben werden, zu welchen immer ein Label gesetzt wird, welche den späteren
 Methodennamen darstellt.
 
-Mit der Quelltext-Generation kann, konnte dann der \code{DatabaseService} geschrieben werden. In diesem
+Mit der Quelltext-Generation konnte dann der \code{DatabaseService} geschrieben werden. In diesem
 wird eine Verbindung über einen Connection-Pool zur Datenbank herstellt und mit der bestehenden Verbindung
 die Query-Klassen initialisiert. Zusätzlich besteht ein \code{MigrationService}, der im \code{DatabaseService}
 genutzt wird. So müssten die bereits in SQL geschriebenen Migrationen auch ausgeführt werden, und die bisherige
@@ -41,7 +41,7 @@ Dafür wird im \code{MigrationService} eine Tabelle in der Datenbankerstellt, we
 So kann diese Version für die Migration erhalten werden und nach der Migration auf die neueste Version gesetzt werden.
 
 Neben der Datenbank wird noch im Backend der geteilter In-Memory-Cache \emph{redis}~\cite{redis} eingesetzt.
-Damit können Daten geteilt bei mehreren Backend-Instanzen zwischengespeichert werden. Dies wurde gemacht, um
+Damit können Daten geteilt bei mehreren Backend-Instanzen zwischengespeichert werden. Dies wurde verwendet um
 Datenbankabfragen, welche eine längere Zeit dauern zwischenzuspeichern und die Ergebnisse schneller zurückgeben
 zu können. Ein Beispiel ist hierfür der \code{AuthorizationCache}, in welcher die Zugriffsberechtigungen für
 das Absichern der API zwischenspeichert.
@@ -66,14 +66,14 @@ zu domänenspezifischen Objekten umgewandelt, welche auch für die spätere Prä
 serialisierbar sind.
 
 So gibt es aber auch Services, die nicht in das CRUD-Schema passen. Dies ist
-\zb{} der \code{AuthenticationService} oder \emph{AuthorizationService}, welche die Nutzer Authentifikation und
-Autorisation steuert. Über den \code{AuthenticationService} dieses können Nutzerkonten erstellt werden
+\zb{} der \code{AuthenticationService} oder \code{AuthorizationService}, welche die Nutzer Authentifikation und
+Autorisation steuert. Über den \code{Authentication\-Service} können Nutzerkonten
 über eine Registration erstellt werden. Um den Nutzer für die spätere Authentifikation zu
 identifizieren wird eine Kombination aus einem kurzlebigen Access-Token und
 einem langlebigen Refresh-Token verwendet. Der Access-Token, ist dabei ein
 signierter \emph{JWT} Token, welcher nur eine kurze Gültigkeit von einem Tag
 hat. Dieser wird zu der eigentlichen Authentifikation verwendet. Wenn der
-bisherige AccessToken abgelaufen ist, kann der RefreshToken verwendet werden,
+bisherige Access-Token abgelaufen ist, kann der Refresh-Token verwendet werden,
 um einen neuen AccessToken generieren zu lassen. Dafür muss der Refresh-Token
 in der Datenbank gespeichert werden. Durch diese Kombination beider Tokens, muss
 nur selten ein Datenbankzugriff zur Authentifikation erfolgen. Zuletzt hat der
@@ -81,7 +81,7 @@ nur selten ein Datenbankzugriff zur Authentifikation erfolgen. Zuletzt hat der
 ob ein Nutzer der Besitzer eines Projektes ist oder dieses für ihn geteilt
 wurde, womit in der Präsentationsschicht die API-Routen abgesichert werden können.
 
-Das das Backend über eine Echtzeit-Komponenten für Chats der einzelnen Teams und zur
+Das das Backend über eine Echtzeit-Komponente für Chats der einzelnen Teams und zur
 generellen Benachrichtigung von Events verfügt, gibt es noch \emph{Services} zur Steuerung
 von diesen. Um auch hier eine Skalierung des Backends zu ermöglichen, wurde das Pub-Sub-System \emph{Nats}~\cite{nats}
 eingesetzt. Mit diesem System ist es möglich sich für verschiedene Nachrichtenkanäle zu registrieren,
@@ -113,11 +113,9 @@ Für eine automatische Instanziierung aller benötigter Klassen und eine passend
 Anbindung derer Abhängigkeiten, wurde die Dependency-Injection Bibliotheken
 \emph{dagger} und \emph{anvil} verwendet. Für die Integration in die bisher beschriebenen
 Klassen müssen hierfür nur um Annotationen ergänzt werden. Dadurch wird mitgeteilt, über welchen
-Konstruktor \zb{} die Klasse initialisierbar ist. Auch wurde es öfters gebraucht, dass Klassen eine
-Ansammlung von Instanzen erhalten, welche ein spezifisches Interface erfüllen. Dafür konnten auch
-Annotationen gesetzt werden, welche signalisieren, dass eine Klasseninstanz genau dafür verwendet werden kann.
+Konstruktor \zb{} die Klasse initialisierbar ist.
 
-Zum erstellen und instialisieren des gesamten Abhängigkeits-Graphen der Applikation stellt der \code{AppComponent}
+Zum Erstellen und Initialisieren des gesamten Abhängigkeits-Graphen der Applikation stellt der \code{AppComponent}
 den Einttritspunkt dar. Für dieses erstellt \emph{dagger} den gesammten Injektions-Quelltext, um
 eine konkrete Instanz des \code{AppComponents} zu erhalten. In diesem ist der \code{ServiceManager}
 vorhanden, welcher die Dienste der Applikation verwaltet und startet.
