@@ -5,8 +5,17 @@ all: build open
 prepare:
   mkdir -p dist/chapters
 
+# Commands stolen from:
+# http://www.math.uni-rostock.de/~dittmer/files/AnleitungBibLatexBiber.pdf
 build: prepare
-  mklatex
+  #!/usr/bin/env sh
+  set -e
+  cd src/
+
+  pdflatex -halt-on-error  -output-directory=../dist ./main.tex
+  biber --isbn-normalise ../dist/main.bcf
+  pdflatex -halt-on-error  -output-directory=../dist ./main.tex
+  pdflatex -halt-on-error  -output-directory=../dist ./main.tex
 
 open:
   open ./dist/main.pdf
