@@ -1,10 +1,14 @@
 # Chatter
 
-Chatter is a small chat plattform for teams. Users can create multiple teams and also be invited
-to them. Each team has also multiple channels for communicating via chat. The application uses
-a [`kotlin`](https://kotlinlang.org/) backend that mostly revolves around [`ktor`](https://ktor.io/),
+Created for the Software Development for Business Processes course at the [THA](https://www.tha.de/Informatik.html), 
+Chatter is a small chat plattform for teams akin popular apps like Slack or Discord. Users can create multiple 
+teams and also be invited to them. Each team has also multiple channels for communicating via chat. The application 
+uses a [`kotlin`](https://kotlinlang.org/) backend that mostly revolves around [`ktor`](https://ktor.io/),
 [`sqldelight`](https://github.com/cashapp/sqldelight), [`arrow`](https://arrow-kt.io/) and [`dagger`](https://dagger.dev/)
-combined with [`anvil`](https://github.com/square/anvil). The frontend is a client rendered [`SolidJS`](https://www.solidjs.com/) SPA.
+combined with [`anvil`](https://github.com/square/anvil). The frontend is a client rendered [`SolidJS`](https://www.solidjs.com/) 
+SPA, which allows the user to interact with the teams and channels as well as composing new messages via 
+markdown and receiving them from other users in real time through websockets. A more detailed documentation (in german) can be found 
+at [`dokumentation.pdf`](./dokumentation.pdf), which was created as part of the course assignment.
 
 ## Running
 
